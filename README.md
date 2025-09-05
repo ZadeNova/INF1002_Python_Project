@@ -75,13 +75,13 @@ git checkout main
 git pull origin main
 ```
 
-## Create your Feature Branch
-
+### 2. Create your Feature Branch
+```
 # Create and switch to a new branch
 git checkout -b feature/your-feature-name
+```
 
-
-## Do your Work
+### 3. Do your Work
 Code your feature, write tests, and make sure it works. Commit your changes to your branch.
 ```bash
 # Stage your changes
@@ -90,7 +90,7 @@ git add .
 # Commit with a clear message
 git commit -m "feat: add calculate_sma function with tests"
 ```
-## Push your feature to Github
+### 4. Push your feature to Github
 
 Upload your branch to the shared repository.
 ```

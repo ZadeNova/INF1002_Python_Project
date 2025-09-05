@@ -97,5 +97,20 @@ Upload your branch to the shared repository.
 git push -u origin feature/your-feature-name
 ```
 
+### 5. Create a Pull Request
 
+
+### 6. Update Your Local Machine
+Update your local repository with the latest code from the github repository
+After pull request is merged to main branch , get the latest main
+```
+# Switch back to main
+git checkout main
+
+# Delete the feature branch locally
+git branch -d feature/your-feature-name
+
+# Pull the latest main (which now includes your merged code!)
+git pull origin main
+```
 

@@ -23,7 +23,6 @@ Follow these steps to set up the development environment on your local machine.
     source venv/bin/activate
 
     # On Windows (Command Prompt)
-    python -m venv venv
     venv\Scripts\activate.bat
 
     # On Windows (PowerShell)

@@ -8,7 +8,8 @@ st.set_page_config(
 
 
 # UIUX should go here into app.py
-
+# hi hi
 
 st.title("Stock Analysis Project")
 st.write("Hello World!")
+st.write("Hello World2!")

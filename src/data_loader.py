@@ -32,6 +32,8 @@ def fetch_stock_data(ticker, start=config.START_DATE, end=config.END_DATE, save=
     # Only fetch if we need new data
     if new_start <= end:
         new_data = yf.download(ticker, start=new_start, end=end, progress=False)
+        if isinstance(new_data.columns, pd.MultiIndex):
+            new_data.columns = [col[0] for col in new_data.columns]
         new_data.reset_index(inplace=True)
     else:
         new_data = pd.DataFrame()

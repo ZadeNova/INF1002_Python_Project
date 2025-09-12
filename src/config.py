@@ -13,4 +13,4 @@ TICKERS = [
 
 # Default start date for historical data
 START_DATE = "2024-01-01"
-END_DATE = "2025-01-01"
+END_DATE = "2026-01-01"

@@ -2,66 +2,65 @@ import pandas as pd
 import numpy as np
 import timeit
 import os
+import talib
 
 # Technical Indicator Functions
 
 
 # Dont touch any RSI function pls
-def calculate_RSI_1(df: pd.DataFrame):
+def calculate_RSI(df: pd.DataFrame,N) -> pd.DataFrame:
     # Time Complexity O(n)
     # Space Complexity O(n)
 
-    # Loop method
-    for i in range(2,len(df)):
-        current_close = float(df.iloc[i]['Close'])
-        previous_close = float(df.iloc[i-1]['Close'])
-        
-        if current_close > previous_close:
-            df.at[i, 'gain'] = current_close - previous_close
-            df.at[i, 'loss'] = 0
-        elif current_close < previous_close:
-            df.at[i,'loss'] = previous_close - current_close
-            df.at[i,'gain'] = 0
-        else:
-            df.at[i,'gain'] = 0
-            df.at[i,'loss'] = 0
+    for i in range(1,len(df)):
+        change = df.loc[i,'Close'] - df.loc[i-1,'Close']
+        df.loc[i,'gain'] = max(change,0)
+        df.loc[i,'loss'] = max(-change,0)
+    
+    # Calculate initial average gain and loss
+    df.loc[N, 'avg_gain'] = df['gain'].iloc[1:N+1].sum() / N
+    df.loc[N, 'avg_loss'] = df['loss'].iloc[1:N+1].sum() / N
 
-    # df['Close'][2:len(df)] = pd.to_numeric(df['Close'][2:len(df)], errors='coerce')
-    # df['Change'] = df['Close'][2:len(df)].diff()
-    # df['Gain'] = df['Change'][2:len(df)].clip(lower=0)
-    # df['Loss'] = (-df['Change'][2:len(df)]).clip(lower=0)
+    # Compute initial RS and RSI
+    if df.loc[N, 'avg_loss'] != 0:
+        df.loc[N, 'RS'] = df.loc[N, 'avg_gain'] / df.loc[N, 'avg_loss']
+    else:
+        df.loc[N, 'RS'] = 0
+    df.loc[N, 'RSI'] = (100 - (100 / (1 + df.loc[N, 'RS'])))
 
-    #print(df) 
-    pass
+    # Apply Wilder's smoothing for the rest of the days.
+    for i in range(N+1, len(df)):
+        prev_avg_gain = df.loc[i-1, 'avg_gain']
+        prev_avg_loss = df.loc[i-1, 'avg_loss']
 
-def calculate_RSI2(df):
-    df.loc[2:len(df),"Close"] = pd.to_numeric(df.loc[2:len(df),"Close"], errors='coerce')
-    df['Change'] = df.loc[2:len(df),"Close"].diff()
-    df['Gain'] = df.loc[2:len(df),"Close"].clip(lower=0)
-    df['Loss'] = (-df.loc[2:len(df),"Close"]).clip(lower=0)
+        gain = df.loc[i, 'gain']
+        loss = df.loc[i, 'loss']
 
-    #print(df) 
+        avg_gain = ((prev_avg_gain * (N-1)) + gain ) / N
+        avg_loss = ((prev_avg_loss * (N-1)) + loss ) / N
 
-def calculate_EMA():
-    pass
+        df.loc[i, 'avg_gain'] = avg_gain
+        df.loc[i, 'avg_loss'] = avg_loss
 
-def calculate_MACD():
-    pass
+        rs = avg_gain / avg_loss if avg_loss != 0 else 0
+        rsi = 100 - 100 / ( 1 + rs)
 
-def calculate_VWAP():
-    pass
+        df.loc[i, 'RS'] = rs
+        df.loc[i, 'RSI'] = rsi
+    
+    return df
+
+    #print(df)
+    
+
+    # This is the way to validate RSI
+    # closing_prices = df['Close'].values
+    # rsi = talib.RSI(closing_prices, timeperiod=14)
+    # df['RSI2'] = rsi
+
+
 
 # Other Functions
-
-def Calculate_upward_and_Downward_runs():
-    # Count of Total Occurrences.
-    # How many individual upward movements happen
-    # How many individual downward movements happen
-    # Streaks/Runs analysis
-    # Upward streak 2+ consecutive days. Same for downward streak
-    # Longest streaks. Maximum number of consecutive days the price increased and decreased.
-    # Utilize two pointers to calculate the longest streaks in each direction
-    pass
 
 
 
@@ -71,8 +70,4 @@ file_path = os.path.join(current_dir,"src","CSV","AAPL.csv")
 print(current_dir)
 
 stock_df = pd.read_csv(file_path)
-time1 = timeit.timeit(lambda: calculate_RSI_1(stock_df),number=10)
-time2 = timeit.timeit(lambda: calculate_RSI2(stock_df),number=10)
-
-print(f"Method 1 avg time: {time1/10:.6f} seconds")
-print(f"Method 2 avg time: {time2/10:.6f} seconds")
+calculate_RSI(stock_df,14)

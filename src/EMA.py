@@ -1,32 +1,34 @@
 import pandas as pd
 import numpy as np
-import timeit
 import os
 
 # Technical Indicator Functions
 def calculate_EMA(df: pd.DataFrame, period: int=12, column: str="Close", ema_col: str=None):
-    # Time Complexity O(n)
-    # Space Complexity O(n)
-    
     if ema_col is None:
         ema_col = f"EMA_{period}"
     
+    # Ensure numeric values
     df[column] = pd.to_numeric(df[column], errors="coerce")
     
-    # Smoothing factor
+    prices = df[column].tolist()
+    ema_values = [None] * len(prices)
+    
+    # Step 1: first EMA = average of first 'period' prices
+    first_ema = sum(prices[:period]) / period
+    ema_values[period-1] = first_ema
+    
+    # Step 2: loop for remaining prices
     k = 2 / (period + 1)
+    for i in range(period, len(prices)):
+        prev_ema = ema_values[i-1]
+        price = prices[i]
+        ema_values[i] = (price - prev_ema) * k + prev_ema
     
-    # Initialize EMA column with NaN
-    df[ema_col] = np.nan
+    # Add raw EMA values to DataFrame
+    df[ema_col] = ema_values
     
-    # First EMA = SMA of first `period` values
-    df.loc[period-1, ema_col] = df.loc[:period-1, column].mean()
-    
-    # Loop calculation
-    for i in range(period, len(df)):
-        price = df.loc[i, column]
-        prev_ema = df.loc[i-1, ema_col]
-        df.loc[i, ema_col] = (price - prev_ema) * k + prev_ema
+    # When saving, round to 2 decimals for cleaner CSV
+    df[ema_col] = df[ema_col].round(2)
     
     return df
 
@@ -37,6 +39,13 @@ file_path = os.path.join(current_dir,"src","CSV","AAPL.csv")
 print(current_dir)
 
 stock_df = pd.read_csv(file_path)
-time1 = timeit.timeit(lambda: calculate_EMA(stock_df),number=10)
 
-print(f"Method 1 avg time: {time1/10:.6f} seconds")
+# Add EMA columns
+stock_df = calculate_EMA(stock_df, period=12)
+stock_df = calculate_EMA(stock_df, period=26)
+
+# Save back to CSV with 2 dp EMA
+stock_df.to_csv(file_path, index=False)
+
+print(stock_df.head(20))
+

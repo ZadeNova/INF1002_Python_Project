@@ -10,11 +10,11 @@ import config
 for tickers in config.TICKERS:
     df = fetch_stock_data(tickers, save=False)
 
-for tickers in config.TICKERS:
-    latest_price = fetch_latest_price(tickers)
+#for tickers in config.TICKERS:
+#    latest_price = fetch_latest_price(tickers)
 
 #tickers = input("Enter ticker symbol: ").upper()    
-tickers = "AAPL" #just for testing
+tickers = "AMZN" #just for testing
 df = fetch_stock_data(tickers, save=False)
 user_window = int(50) #just for testing
 
@@ -32,7 +32,7 @@ def validate_results(df, user_window):
     #Compares each row from both methods for discrepancies
     for i in range(0, len(avg_prices)):
         #compares the values from both methods rounded to 5 decimal places
-        if round(avg_prices[i],5) != round(pandas_avg_prices.iloc[i],5):
+        if avg_prices [i] != pandas_avg_prices.iloc[i]:
             print(f"Discrepancy at index {i}: calculated {avg_prices[i]}, pandas {pandas_avg_prices.iloc[i]}")
             test_case = "Failed"
             break

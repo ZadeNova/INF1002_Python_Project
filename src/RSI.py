@@ -4,11 +4,12 @@ import timeit
 import os
 import talib
 
+
 # Technical Indicator Functions
 
 
 # Dont touch any RSI function pls
-def calculate_RSI(df: pd.DataFrame,N) -> pd.DataFrame:
+def calculate_RSI(df: pd.DataFrame, time_period: int) -> pd.DataFrame:
     # Time Complexity O(n)
     # Space Complexity O(n)
 
@@ -18,26 +19,26 @@ def calculate_RSI(df: pd.DataFrame,N) -> pd.DataFrame:
         df.loc[i,'loss'] = max(-change,0)
     
     # Calculate initial average gain and loss
-    df.loc[N, 'avg_gain'] = df['gain'].iloc[1:N+1].sum() / N
-    df.loc[N, 'avg_loss'] = df['loss'].iloc[1:N+1].sum() / N
+    df.loc[time_period, 'avg_gain'] = df['gain'].iloc[1:time_period+1].sum() / time_period
+    df.loc[time_period, 'avg_loss'] = df['loss'].iloc[1:time_period+1].sum() / time_period
 
     # Compute initial RS and RSI
-    if df.loc[N, 'avg_loss'] != 0:
-        df.loc[N, 'RS'] = df.loc[N, 'avg_gain'] / df.loc[N, 'avg_loss']
+    if df.loc[time_period, 'avg_loss'] != 0:
+        df.loc[time_period, 'RS'] = df.loc[time_period, 'avg_gain'] / df.loc[time_period, 'avg_loss']
     else:
-        df.loc[N, 'RS'] = 0
-    df.loc[N, 'RSI'] = (100 - (100 / (1 + df.loc[N, 'RS'])))
+        df.loc[time_period, 'RS'] = 0
+    df.loc[time_period, 'RSI'] = (100 - (100 / (1 + df.loc[time_period, 'RS'])))
 
     # Apply Wilder's smoothing for the rest of the days.
-    for i in range(N+1, len(df)):
+    for i in range(time_period+1, len(df)):
         prev_avg_gain = df.loc[i-1, 'avg_gain']
         prev_avg_loss = df.loc[i-1, 'avg_loss']
 
         gain = df.loc[i, 'gain']
         loss = df.loc[i, 'loss']
 
-        avg_gain = ((prev_avg_gain * (N-1)) + gain ) / N
-        avg_loss = ((prev_avg_loss * (N-1)) + loss ) / N
+        avg_gain = ((prev_avg_gain * (time_period-1)) + gain ) / time_period
+        avg_loss = ((prev_avg_loss * (time_period-1)) + loss ) / time_period
 
         df.loc[i, 'avg_gain'] = avg_gain
         df.loc[i, 'avg_loss'] = avg_loss
@@ -50,19 +51,13 @@ def calculate_RSI(df: pd.DataFrame,N) -> pd.DataFrame:
     
     return df
 
-    #print(df)
-    
-
-    # This is the way to validate RSI
-    # closing_prices = df['Close'].values
-    # rsi = talib.RSI(closing_prices, timeperiod=14)
-    # df['RSI2'] = rsi
 
 
 
 # Other Functions
 
-
+def sayHello_test():
+    print(f"Hello there!")
 
 # Testing my functions:
 current_dir = os.getcwd()

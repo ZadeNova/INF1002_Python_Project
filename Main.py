@@ -3,11 +3,7 @@ import pandas as pd
 import yfinance as yf
 
 # Set up Streamlit app
-st.set_page_config(
-    page_title="BullBearAnalysis",
-    page_icon="📈",
-    layout="wide"
-)
+st.set_page_config( page_title="BullBearAnalysis",page_icon="📈",layout="wide")
 st.title("BullBearAnalysis📈")
 st.write("Welcome! To analyze stock data for bullish and bearish trends. You can upload a CSV file with stock data or enter a stock API to fetch data using the yfinance API")
 

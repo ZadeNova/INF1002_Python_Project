@@ -2,16 +2,16 @@ import pandas as pd
 import numpy as np
 import timeit
 import os
-#import talib
+import talib
 from data_loader import fetch_stock_data, fetch_latest_price
 import config
 import datetime 
 
-for tickers in config.TICKERS:
-    df = fetch_stock_data(tickers, save=False)
+#for tickers in config.TICKERS:
+    #df = fetch_stock_data(tickers, save=False)
 
-for tickers in config.TICKERS:
-    latest_price = fetch_latest_price(tickers)
+#for tickers in config.TICKERS:
+    #latest_price = fetch_latest_price(tickers)
 
 tickers = "AAPL" #just for testing
 df = fetch_stock_data(tickers, save=False)
@@ -92,14 +92,19 @@ def calculate_upward_and_Downward_runs(df: pd.DataFrame):
     pass
 
 
-def max_profit_calculation():
-    pass
+def max_profit_calculation(df2: pd.DataFrame):
+    profit = 0
+    for i in range(1, len(df2)):
+        if df2['Close'].iloc[i] > df2['Close'].iloc[i-1]:
+            profit += df2['Close'].iloc[i] - df2['Close'].iloc[i-1]
+    print(f"Maximum Profit (multiple transactions allowed): ${profit:.2f}") #printed on streamlit app
+    return profit
 
 
 def calculate_daily_returns():
     pass
 
-calculate_upward_and_Downward_runs(df)
+#calculate_upward_and_Downward_runs(df)
 #print(len(up_trend_list))
 #print(len(up_trend_dates))
 #print(len(down_trend_list))
@@ -107,3 +112,10 @@ calculate_upward_and_Downward_runs(df)
 
 for i in range(0, len(down_trend_list)):
     print(f"{i+1} Downward Trend of {down_trend_list[i]} days from {down_trend_dates[i]}")
+
+
+#testing max profit calculation
+current_dir = os.getcwd()
+file_path = os.path.join(current_dir,"src","CSV","AAPL.csv")
+df2 = pd.read_csv(file_path)
+max_profit= max_profit_calculation(df2)

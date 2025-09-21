@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import yfinance as yf
-
+from src.visualization import plot_visualization
 
 # Set up Streamlit app
 st.set_page_config( page_title="BullBearAnalysis",page_icon="📈",layout="wide")
@@ -25,15 +25,15 @@ def verify_data_format(data):
 # Initialising data to hold csv file/api data
 data = None
 
-# Check if a file or api was provided and load data to data_loader
+# # Check if a file or api was provided and load data to data_loader
 if uploaded_file is not None:
-    # Read CSV data if uploaded
-    data = pd.read_csv(uploaded_file)
-    if not verify_data_format(data): # check if csv file is in correct format
-        st.error("CSV file is not in the correct format. Please ensure it contains the required columns: Date, Close, High, Low, Open, Volume")
+    data = pd.read_csv(uploaded_file, parse_dates=["Date"])
+    data.set_index("Date", inplace=True)
+    if verify_data_format(data):
+        st.success("CSV uploaded successfully ✅")
     else:
-        st.write("blah blah")
-        #run data visualizations and analytics
+        st.error("CSV format incorrect.")
+
 
 elif api:
     # Fetch stock data using yfinance API if api is provided
@@ -46,20 +46,23 @@ elif api:
 
 
 # Option to select technical indicators
-if data is not None and verify_data_format(data):
+if data is not None and verify_data_format(data.reset_index()):
+    st.sidebar.header("📊 Indicators")
     indicators = []
+    if st.sidebar.checkbox('Moving Average (SMA)', value=True):
+        indicators.append("SMA")
+    if st.sidebar.checkbox('Exponential Moving Average (EMA)', value=False):
+        indicators.append("EMA")
+    if st.sidebar.checkbox('VWAP', value=False):
+        indicators.append("VWAP")        
+    if st.sidebar.checkbox('Relative Strength Index (RSI)', value=False):
+        indicators.append("RSI")
+    if st.sidebar.checkbox('MACD', value=False):
+        indicators.append("MACD")
 
-    if st.checkbox('Moving Average (50 & 200)', value=True):
-        indicators.append('SMA')
 
-    if st.checkbox('Exponential Moving Average (EMA)', value=True):
-        indicators.append('EMA')
+    stock_name = api if api else "Uploaded Data"
+    fig = plot_visualization(data.copy(), stock_name, indicators)
+    st.plotly_chart(fig, use_container_width=True)
 
-    if st.checkbox('Relative Strength Index (RSI)', value=True):
-        indicators.append('RSI')
 
-    if st.checkbox('MACD', value=True):
-        indicators.append('MACD')
-
-    if st.checkbox('VWAP', value=True):
-        indicators.append('VWAP')

@@ -1,4 +1,4 @@
-from EMA import calculate_EMA
+from src.EMA import calculate_EMA
 import pandas as pd
 import numpy as np
 import os

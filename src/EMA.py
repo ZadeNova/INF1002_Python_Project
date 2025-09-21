@@ -5,7 +5,7 @@ import os
 # Technical Indicator Functions
 def calculate_EMA(df: pd.DataFrame, period: int=12, column: str="Close", ema_col: str=None):
     if ema_col is None:
-        ema_col = f"EMA_{period}"
+        ema_col = f"EMA{period}"
     
     # Ensure numeric values
     df[column] = pd.to_numeric(df[column], errors="coerce")

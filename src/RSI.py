@@ -51,8 +51,13 @@ def calculate_RSI(df: pd.DataFrame, time_period: int) -> pd.DataFrame:
     
     return df
 
-
-
+def calculate_RSI_new(df, window=14):
+    price_change = df["Close"].diff()
+    gain = (price_change.where(price_change > 0, 0)).rolling(window=window).mean()
+    loss = (-price_change.where(price_change < 0, 0)).rolling(window=window).mean()
+    rs = gain / loss
+    df["RSI"] = 100 - (100 / (1 + rs))
+    return df
 
 # Other Functions
 

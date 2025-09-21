@@ -21,5 +21,5 @@ data = calculate_VWAP(data)
 print(data[['Date', 'Close', 'VWAP']].head(10))
 
 out_path = "C:/Users/joelo/OneDrive/Desktop/SIT/Year 1/INF1102 Programming/INF1002_Python_Project/src/CSV/AAPL_VWAP.csv"
-data.to_csv(out_path, index=False)
+#data.to_csv(out_path, index=False)
 print(f"\nVWAP results saved to {out_path}")

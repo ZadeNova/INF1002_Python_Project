@@ -1,5 +1,6 @@
 import streamlit as st
-
+import pandas as pd
+import yfinance as yf
 
 
 # Set up Streamlit app

@@ -32,13 +32,6 @@ def calculate_MACD(df: pd.DataFrame, short_period: int=12, long_period: int=26, 
 
     return df
 
-def calculate_MACD_new(df, short=12, long=26, signal=9):
-    df["EMA12"] = df["Close"].ewm(span=short, adjust=False).mean()
-    df["EMA26"] = df["Close"].ewm(span=long, adjust=False).mean()
-    df["MACD"] = df["EMA12"] - df["EMA26"]
-    df["Signal"] = df["MACD"].ewm(span=signal, adjust=False).mean()
-    return df
-
 #Testing MACD functions:
 current_dir = os.getcwd()
 file_path = os.path.join(current_dir,"src","CSV","AAPL.csv")

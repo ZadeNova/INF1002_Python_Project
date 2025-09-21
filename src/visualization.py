@@ -6,7 +6,7 @@ from plotly.subplots import make_subplots
 from src.SMA import calculate_SMA_pandas
 from src.EMA import calculate_EMA
 from src.RSI import calculate_RSI_new
-from src.MACD import calculate_MACD_new
+from src.MACD import calculate_MACD
 from src.VWAP import calculate_VWAP
 
 
@@ -80,10 +80,14 @@ def plot_visualization(df, stock_name, indicators=None):
             fig.add_trace(go.Scatter(x=df.index, y=df["VWAP"], mode="lines", name="VWAP"), row=1, col=1)
 
         if "MACD" in indicators:
-            df = calculate_MACD_new(df)
+            df = calculate_MACD(df)
             row_counter += 1
             fig.add_trace(go.Scatter(x=df.index, y=df["MACD"], mode="lines", name="MACD"), row=row_counter, col=1)
-            fig.add_trace(go.Scatter(x=df.index, y=df["Signal"], mode="lines", name="Signal"), row=row_counter, col=1)
+            fig.add_trace(go.Scatter(x=df.index, y=df["Signal_Line"], mode="lines", name="Signal"), row=row_counter, col=1)
+            fig.add_trace(go.Bar(x=df.index, y=df["MACD_Histogram"], name="Histogram", 
+                                    marker_color=['rgba(0, 128, 0, 1)' if val >= 0 else 'rgba(255, 0, 0, 1)' for val in df["MACD_Histogram"]],
+                                    opacity=0.5,
+                                    hovertemplate="Histogram: %{y:.4f}<extra></extra>"), row=row_counter, col=1)
 
         if "RSI" in indicators:
             df = calculate_RSI_new(df)

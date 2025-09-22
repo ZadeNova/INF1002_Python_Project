@@ -1,6 +1,7 @@
 # Simple Moving Average (SMA) calculation and data fetching 50, 100, 150, 200 days
 import pandas as pd
 import numpy as np
+import talib
 '''
 from data_loader import fetch_stock_data, fetch_latest_price
 import config
@@ -42,7 +43,8 @@ def calculate_SMA(df: pd.DataFrame, user_window):
     return avg_prices
 
 
-#SMA Calculator using Pandas
-def calculate_SMA_pandas(df, window=50, column="Close"):
-    df[f"SMA{window}"] = df[column].rolling(window=window).mean()
+#SMA Calculator using talib
+def calculate_SMA_talib(df, window=50, column="Close"):
+    #df[f"SMA{window}"] = df[column].rolling(window=window).mean()
+    df[f"SMA_{window}"]= talib.SMA(df['Close'], timeperiod=window)
     return df

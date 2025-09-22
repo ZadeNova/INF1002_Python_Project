@@ -14,8 +14,11 @@ def calculate_VWAP(df):
     return df
 
 # Testing the function
-path = "C:/Users/joelo/OneDrive/Desktop/SIT/Year 1/INF1102 Programming/INF1002_Python_Project/src/CSV/AAPL.csv" 
-data = pd.read_csv(path)
+
+current_dir = os.getcwd()
+file_path = os.path.join(current_dir,"src","CSV","AAPL.csv")
+#path = "C:/Users/joelo/OneDrive/Desktop/SIT/Year 1/INF1102 Programming/INF1002_Python_Project/src/CSV/AAPL.#csv" 
+data = pd.read_csv(file_path)
 data = calculate_VWAP(data)
 
 print(data[['Date', 'Close', 'VWAP']].head(10))

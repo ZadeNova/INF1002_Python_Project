@@ -70,4 +70,6 @@ file_path = os.path.join(current_dir,"src","CSV","AAPL.csv")
 print(current_dir)
 
 stock_df = pd.read_csv(file_path)
-calculate_RSI(stock_df,14)
+df = calculate_RSI(stock_df,14)
+print(df)
+

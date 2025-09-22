@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 import yfinance as yf
 from src.visualization import plot_visualization
+from src.technical_indicators import *
+from src.config import *
+
 
 # Set up Streamlit app
 st.set_page_config( page_title="BullBearAnalysis",page_icon="📈",layout="wide")
@@ -37,32 +40,58 @@ if uploaded_file is not None:
 
 elif api:
     # Fetch stock data using yfinance API if api is provided
-    data = yf.download(api, period="1y", interval="1d")
+    #data = yf.download(api, period="1y", interval="1d")
+    data = yf.Ticker(api).history(period="1y")
+    print('wait is this getting activated?')
+    print(data)
     if data.empty:
         st.error(f"Could not fetch data for api: {api}")
     else:
         st.write("blah blah")
         #run data visualizations and analytics
-
+        
+        
+ # Display select field for type of chart       
+type_of_chart_selected = st.sidebar.selectbox(
+        "Select Chart Type",
+        ("LineChart","CandleStick"),
+                                         )
 
 # Option to select technical indicators
 if data is not None and verify_data_format(data.reset_index()):
+    
+    
+    
+    
+    
+    
     st.sidebar.header("📊 Indicators")
+    
     indicators = []
-    if st.sidebar.checkbox('Moving Average (SMA)', value=True):
-        indicators.append("SMA")
-    if st.sidebar.checkbox('Exponential Moving Average (EMA)', value=False):
-        indicators.append("EMA")
-    if st.sidebar.checkbox('VWAP', value=False):
-        indicators.append("VWAP")        
-    if st.sidebar.checkbox('Relative Strength Index (RSI)', value=False):
-        indicators.append("RSI")
-    if st.sidebar.checkbox('MACD', value=False):
-        indicators.append("MACD")
+    
+    selected_technical_indicators = st.sidebar.multiselect(
+        "Select your technical Indicators",
+        TECHNICAL_INDICATOR_OPTIONS,
+        max_selections=5
+        )
+    
 
+        
+    print(data.head(5))
+    print(data.info())
+    print("Before Data Processing")
 
+    # We will compute the calculations based on what TA user chose into the dataframe. DO NOT CALCULATE ALL DAtaframe.
+    
+    # Data processing ( Technical Indicators are applied to dataframe )
+    df_processed = apply_selected_technical_indicators(data, selected_technical_indicators)
+    
+    
+    print(df_processed.info())
+    print(f"After data processed")
+    #print(f"CHART SELECTOR {type_of_chart_selected} {selected_technical_indicators}")
     stock_name = api if api else "Uploaded Data"
-    fig = plot_visualization(data.copy(), stock_name, indicators)
+    fig = plot_visualization(df=df_processed, stock_name=stock_name, type_of_chart=type_of_chart_selected, indicators=selected_technical_indicators)
     st.plotly_chart(fig, use_container_width=True)
 
 

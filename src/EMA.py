@@ -41,11 +41,11 @@ print(current_dir)
 stock_df = pd.read_csv(file_path)
 
 # Add EMA columns
-stock_df = calculate_EMA(stock_df, period=12)
-stock_df = calculate_EMA(stock_df, period=26)
+#stock_df = calculate_EMA(stock_df, period=12)
+#stock_df = calculate_EMA(stock_df, period=26)
 
 # Save back to CSV with 2 dp EMA
 #stock_df.to_csv(file_path, index=False)
 
-print(stock_df.head(20))
+#print(stock_df.head(20))
 

@@ -1,5 +1,26 @@
 # config.py
 
+
+# TA Select FIELDS
+SMA_20_LABEL = "SMA 20 (Short Term)"
+SMA_50_LABEL = "SMA 50 (Medium Term)"
+SMA_200_LABEL = "SMA 200 (Long Term)"
+RSI_14_LABEL = "RSI 14"
+VWAP = "VWAP"
+MACD = "MACD"
+EMA = "EMA"
+
+
+TECHNICAL_INDICATOR_OPTIONS = [
+    SMA_20_LABEL,
+    SMA_50_LABEL,
+    SMA_200_LABEL,
+    RSI_14_LABEL,
+    VWAP,
+    MACD,
+    EMA,
+]
+
 # List of stocks you want to track
 TICKERS = [
     "AAPL",     # Apple

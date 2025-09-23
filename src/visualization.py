@@ -205,7 +205,7 @@ def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicat
 
     fig.update_layout(
         title=f"{stock_name} Price with Indicators",
-        xaxis_title='Time',
+        xaxis_title='',
         yaxis_title='Price (USD)',
         legend=dict(x=0, y=1, bgcolor="rgba(0,0,0,0)"),
         height=1000, width=1000

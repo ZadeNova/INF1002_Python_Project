@@ -61,7 +61,11 @@ def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicat
             open=df[f'Open'],
             high=df[f'High'],
             low=df[f'Low'],
-            close=df[f'Close']
+            close=df[f'Close'],
+            increasing_line_color="green",     # outline for bullish candles
+            increasing_fillcolor="green",      # fill bullish candles solid green
+            decreasing_line_color="red",       # outline for bearish candles
+            decreasing_fillcolor="red"         # fill bearish candles solid red
         ),
         row=1, col=1
         )

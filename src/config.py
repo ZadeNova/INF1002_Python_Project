@@ -8,8 +8,8 @@ SMA_200_LABEL = "SMA 200 (Long Term)"
 RSI_14_LABEL = "RSI 14"
 VWAP = "VWAP"
 MACD = "MACD"
-EMA = "EMA"
-
+EMA12 = "EMA12"
+EMA26 = "EMA26"
 
 TECHNICAL_INDICATOR_OPTIONS = [
     SMA_20_LABEL,
@@ -18,7 +18,8 @@ TECHNICAL_INDICATOR_OPTIONS = [
     RSI_14_LABEL,
     VWAP,
     MACD,
-    EMA,
+    EMA12,
+    EMA26
 ]
 
 # List of stocks you want to track

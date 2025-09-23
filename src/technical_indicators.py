@@ -79,7 +79,7 @@ def calculate_RSI(df: pd.DataFrame, time_period: int) -> pd.DataFrame:
 
 
 
-def calculate_EMA(df: pd.DataFrame, period: int=12, column: str="Close", ema_col: str=None) -> pd.DataFrame:
+def calculate_EMA(df: pd.DataFrame, period, column: str="Close", ema_col: str=None) -> pd.DataFrame:
     if ema_col is None:
         ema_col = f"EMA{period}"
     
@@ -204,5 +204,6 @@ TECHNICAL_INDICATORS = {
     RSI_14_LABEL: partial(calculate_RSI, time_period=14),
     MACD: partial(calculate_MACD, short_period=12, long_period=26, signal_period=9, column="Close"),
     VWAP: partial(calculate_VWAP),
-    EMA: partial(calculate_EMA),
+    EMA12: partial(calculate_EMA, period = 12),
+    EMA26: partial(calculate_EMA, period = 26)
 }

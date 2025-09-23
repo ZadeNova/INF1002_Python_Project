@@ -15,7 +15,7 @@ st.write("Welcome! To analyze stock data for bullish and bearish trends. You can
 uploaded_file = st.file_uploader("Upload a CSV file", type=["csv"])
 
 # Option to enter stock api
-api = st.text_input('Enter Stock API (for yfinance API)', '')
+api = st.text_input('Enter Stock Ticker (for yfinance API)', '')
 
 # Function to verify if data is in correct format
 def verify_data_format(data):
@@ -46,10 +46,8 @@ elif api:
     print(data)
     if data.empty:
         st.error(f"Could not fetch data for api: {api}")
-    else:
-        st.write("blah blah")
-        #run data visualizations and analytics
-        
+    else: 
+        pass
         
  # Display select field for type of chart       
 type_of_chart_selected = st.sidebar.selectbox(
@@ -72,7 +70,7 @@ if data is not None and verify_data_format(data.reset_index()):
     selected_technical_indicators = st.sidebar.multiselect(
         "Select your technical Indicators",
         TECHNICAL_INDICATOR_OPTIONS,
-        max_selections=5
+        max_selections=10
         )
     
 

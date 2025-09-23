@@ -7,6 +7,17 @@ import plotly.express as px
 from src.technical_indicators import *
 from src.config import *
 
+def get_subplot_titles(indicators):
+    titles = ["Stock Price"]  # Always include the stock price chart
+    
+    # Add indicator titles based on the selected indicators
+    if MACD in indicators:
+        titles.append("MACD")
+    if RSI_14_LABEL in indicators:
+        titles.append("RSI")
+    
+    return titles
+
 # Plotting Function
 def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicators=None):
     # Decide how many rows we need
@@ -17,18 +28,20 @@ def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicat
     
     row_counter = 1 + len(indicators)
     
-    if len(indicators) == 0:
-        row_heights = [1.0]
-    else:
-        indicator_height = 0.4 / len(indicators)
-        row_heights = [0.6] + [indicator_height] * len(indicators)
+    #if len(indicators) == 0:
+       # row_heights = [1]
+    #else:
+       #indicator_height = (1-0.6) / len(indicators)
+        #row_heights = [0.6] + [indicator_height] * len(indicators)
     
     # fix the rows
+
+    subplot_titles = get_subplot_titles(indicators)
     
     fig = make_subplots(
         rows=row_counter, cols=1, shared_xaxes=True,
-        vertical_spacing=0.05, subplot_titles=("Stock Price","RSI","MACD"),
-        row_heights=row_heights
+        vertical_spacing=0.05, subplot_titles=subplot_titles
+        #row_heights=row_heights
     )
 
     # Ensure first row has dates
@@ -69,7 +82,7 @@ def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicat
         ),
         row=1, col=1
         )
-        
+        fig.update_xaxes(rangeslider_visible=False)
         #fig.update_layout(xaxis_rangeslider_visible=False)
     
     
@@ -105,20 +118,27 @@ def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicat
            
            
         
-        if indicator == EMA:
-            
-            # I have not done  EMA cause I want to sleep.
-            # Please help settle 
+        if indicator == EMA12:
             fig.add_trace(
-                    go.Scatter(
-                        x=df.index, 
-                        y=df[f"EMA_12"],  
-                        mode="lines", 
-                        name=f"EMA 12"
-                    ), 
-                    row=1, 
-                    col=1
-                )
+            go.Scatter(
+            x=df['Date'],
+            y=df['EMA12'],
+            mode="lines",
+            name="EMA",
+            line=dict(color="blue", width=2)
+        ),
+        row=1, col=1 )
+            
+        if indicator == EMA26:
+            fig.add_trace(
+            go.Scatter(
+            x=df['Date'],
+            y=df['EMA26'],
+            mode="lines",
+            name="EMA",
+            line=dict(color="yellow", width=2)
+        ),
+        row=1, col=1)
         
         if indicator == VWAP:
              fig.add_trace(go.Scatter(x=df['Date'], y=df["VWAP"], mode="lines", name="VWAP"), row=1, col=1)

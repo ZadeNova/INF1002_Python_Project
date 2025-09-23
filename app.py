@@ -3,6 +3,7 @@ import pandas as pd
 import yfinance as yf
 from src.visualization import plot_visualization
 from src.technical_indicators import *
+from src.analytics import *
 from src.config import *
 
 
@@ -32,6 +33,7 @@ data = None
 if uploaded_file is not None:
     data = pd.read_csv(uploaded_file, parse_dates=["Date"])
     data.set_index("Date", inplace=True)
+    #data['Date'] = pd.to_datetime(data.index)
     if verify_data_format(data):
         st.success("CSV uploaded successfully ✅")
     else:
@@ -58,11 +60,6 @@ type_of_chart_selected = st.sidebar.selectbox(
 # Option to select technical indicators
 if data is not None and verify_data_format(data.reset_index()):
     
-    
-    
-    
-    
-    
     st.sidebar.header("📊 Indicators")
     
     indicators = []
@@ -73,23 +70,41 @@ if data is not None and verify_data_format(data.reset_index()):
         max_selections=10
         )
     
+    st.sidebar.subheader("Price Trend Highlights")
+    show_upward_trends = st.sidebar.checkbox("Show Upward Trends", value=False)
+    show_downward_trends = st.sidebar.checkbox("Show Downward Trends", value=False)
+    
+    st.sidebar.subheader("Trade Signals")
+    show_buy_signals = st.sidebar.checkbox("Show Buy Signals", value=False)
+    show_sell_signals = st.sidebar.checkbox("Show Sell Signals", value=False)
 
         
     print(data.head(5))
     print(data.info())
     print("Before Data Processing")
 
-    # We will compute the calculations based on what TA user chose into the dataframe. DO NOT CALCULATE ALL DAtaframe.
-    
     # Data processing ( Technical Indicators are applied to dataframe )
     df_processed = apply_selected_technical_indicators(data, selected_technical_indicators)
     
+    
+    # Implement trade signals and trend highlights here
+    if show_upward_trends or show_downward_trends:
+        print(df_processed.head(5), "TESTTTT")
+        df_processed, longest_up_streak, longest_down_streak = calculate_upward_and_Downward_runs(df_processed)
+        st.sidebar.write(f"Longest Upward Trend: {longest_up_streak['length']} days from {longest_up_streak['start'].date()} to {longest_up_streak['end'].date()}")
+        st.sidebar.write(f"Longest Downward Trend: {longest_down_streak['length']} days from {longest_down_streak['start'].date()} to {longest_down_streak['end'].date()}")
+    
+    if show_buy_signals or show_sell_signals:
+        df_processed, max_profit = max_profit_calculation(df_processed)
+        st.sidebar.write(f"Maximum Theoretical Profit (multiple transactions) (No transaction fee): ${max_profit:.2f}")
+    
+    print(df_processed.head(5))
     
     print(df_processed.info())
     print(f"After data processed")
     #print(f"CHART SELECTOR {type_of_chart_selected} {selected_technical_indicators}")
     stock_name = api if api else "Uploaded Data"
-    fig = plot_visualization(df=df_processed, stock_name=stock_name, type_of_chart=type_of_chart_selected, indicators=selected_technical_indicators)
+    fig = plot_visualization(df=df_processed, stock_name=stock_name, type_of_chart=type_of_chart_selected, indicators=selected_technical_indicators, show_buy_signals=show_buy_signals, show_sell_signals=show_sell_signals, show_upward_trends=show_upward_trends, show_downward_trends=show_downward_trends)
     st.plotly_chart(fig, use_container_width=True)
 
 

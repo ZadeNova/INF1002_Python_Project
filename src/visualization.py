@@ -19,7 +19,7 @@ def get_subplot_titles(indicators):
     return titles
 
 # Plotting Function
-def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicators=None):
+def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicators=None ,show_buy_signals=False, show_sell_signals=False, show_upward_trends=False, show_downward_trends=False) -> go.Figure:
     # Decide how many rows we need
     
     
@@ -28,13 +28,7 @@ def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicat
     
     row_counter = 1 + len(indicators)
     
-    #if len(indicators) == 0:
-       # row_heights = [1]
-    #else:
-       #indicator_height = (1-0.6) / len(indicators)
-        #row_heights = [0.6] + [indicator_height] * len(indicators)
-    
-    # fix the rows
+
 
     subplot_titles = get_subplot_titles(indicators)
 
@@ -49,12 +43,7 @@ def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicat
     fig.update_xaxes(showticklabels=True, row=1, col=1)
     
     
-    # print(df.head(10))
-    # print(df.head(1))
-    # print(df.head(2))
-    #print(f"INDICATOR CHECK {indicators}")
-    # To flatten multi column to single column
-    #df.columns = ['_'.join(col).strip() for col in df.columns.values]
+
     df['Date'] = pd.to_datetime(df.index)
     print(df.info())
     
@@ -87,9 +76,6 @@ def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicat
         #fig.update_layout(xaxis_rangeslider_visible=False)
     
     
-    
-    
-    
     current_row = 2
     
     for indicator in indicators:
@@ -116,8 +102,6 @@ def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicat
             fig.add_hline(y=30, line_dash="dash", line_color="green", row=3, col=1)
 
            
-           
-        
         if indicator == EMA12:
             fig.add_trace(
             go.Scatter(
@@ -146,63 +130,78 @@ def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicat
     
     
     
-    #if indicators:
-    #    if "SMA" in indicators:
-    #        # Edit to change windows for SMA periods you want
-    #        sma_windows = [50, 200]
-    #        
-    #        for window in sma_windows:
-    #            df = calculate_SMA_pandas(df, window)
-    #            fig.add_trace(
-    #                go.Scatter(
-    #                    x=df.index, 
-    #                    y=df[f"SMA{window}"],
-    #                    mode="lines", 
-    #                    name=f"SMA{window}"
-    #                ), 
-    #                row=1, 
-    #                col=1
-    #            )
-#
-    #    if "EMA" in indicators:
-    #        # Edit to change windows for EMA periods you want
-    #        ema_periods = [20, 50]
-    #        
-    #        for period in ema_periods:
-    #            df = calculate_EMA(df, period)
-    #            fig.add_trace(
-    #                go.Scatter(
-    #                    x=df.index, 
-    #                    y=df[f"EMA{period}"],  # Use f-string for dynamic column access
-    #                    mode="lines", 
-    #                    name=f"EMA{period}"
-    #                ), 
-    #                row=1, 
-    #                col=1
-    #            )
-#
-    #    if "VWAP" in indicators:
-    #        df = calculate_VWAP(df)
-    #        fig.add_trace(go.Scatter(x=df.index, y=df["VWAP"], mode="lines", name="VWAP"), row=1, col=1)
-#
-    #    if "MACD" in indicators:
-    #        df = calculate_MACD(df)
-    #        row_counter += 1
-    #        fig.add_trace(go.Scatter(x=df.index, y=df["MACD"], mode="lines", name="MACD"), row=row_counter, #col=1)
-    #        fig.add_trace(go.Scatter(x=df.index, y=df["Signal_Line"], mode="lines", name="Signal"), #row=row_counter, col=1)
-    #        fig.add_trace(go.Bar(x=df.index, y=df["MACD_Histogram"], name="Histogram", 
-    #                                marker_color=['rgba(0, 128, 0, 1)' if val >= 0 else 'rgba(255, 0, 0, 1)' #for val in df["MACD_Histogram"]],
-    #                                opacity=0.5,
-    #                                hovertemplate="Histogram: %{y:.4f}<extra></extra>"), row=row_counter, #col=1)
-#
-    #    if "RSI" in indicators:
-    #        df = calculate_RSI_new(df)
-    #        row_counter += 1
-    #        fig.add_trace(go.Scatter(x=df.index, y=df["RSI"], mode="lines", name="RSI"), row=row_counter, #col=1)
-    #        fig.add_hline(y=70, line_dash="dash", line_color="red", row=row_counter, col=1)
-    #        fig.add_hline(y=30, line_dash="dash", line_color="green", row=row_counter, col=1)
+    
+    if show_buy_signals:
+        
+        fig.add_trace(
+            go.Scatter(
+                x=df.loc[df['Buy_Signal'], 'Date'],
+                y=df.loc[df['Buy_Signal'], 'Close'],
+                mode='markers',
+                marker=dict(symbol='triangle-up', color='green', size=10),
+                name='Buy Signal'
+            ),
+            row=1, col=1
+        )
+        print("Buy signals plotted")
 
+    if show_sell_signals:
+        
+        fig.add_trace(
+            go.Scatter(
+                x=df.loc[df['Sell_Signal'], 'Date'],
+                y=df.loc[df['Sell_Signal'], 'Close'],
+                mode='markers',
+                marker=dict(symbol='triangle-down', color='red', size=10),
+                name='Sell Signal'
+            ),
+            row=1, col=1
+        )
+        
+        
+        
+    streak_options = []
+    if show_upward_trends:
+        streak_options.append(("Up_Trend", "rgba(0, 0, 255, 0.3)"))
 
+    if show_downward_trends:
+        streak_options.append(("Down_Trend", "rgba(255, 0, 0, 0.3)"))
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    #for streak_col, color in streak_options:
+    #    in_streak = False
+    #    for i in range(len(df)):
+    #        if df[streak_col].iloc[i] > 0 and not in_streak:
+    #            # Start of a streak
+    #            in_streak = True
+    #            start_date = df.index[i-1] if i > 0 else df.index[i]
+    #        elif (df[streak_col].iloc[i] == 0 or i == len(df)-1) and in_streak:
+    #            end_date = df.index[i] if df[streak_col].iloc[i] > 0 else df.index[i-1]
+    #            fig.add_vrect(
+    #                type='rect',
+    #                xref='x',
+    #                yref='paper',
+    #                x0=start_date,
+    #                x1=end_date,
+    #                y0=0,
+    #                y1=1,
+    #                fillcolor=color,
+    #                line=dict(width=0),
+    #                layer="below"
+    #                
+    #            )
+    #            in_streak = False
+                
+                
     fig.update_layout(
         title=f"{stock_name} Price with Indicators",
         xaxis_title='',

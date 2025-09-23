@@ -10,7 +10,7 @@ try:
     import numpy as np
     import talib
     from ta import momentum
-    from src.RSI import calculate_RSI
+    from src.technical_indicators import *
 
 except ImportError as e:
     print(f"Error: {e}")
@@ -26,7 +26,8 @@ def validate_rsi_against_library(historical_stock_data):
     
     compare_talab_and_manual = np.allclose(talab_library_calculated_RSI, manually_calculated_RSI['RSI'], rtol=1e-3, atol=1e-5,equal_nan=True)
     
-    
+    print(talab_library_calculated_RSI)
+    print(manually_calculated_RSI)
     if compare_talab_and_manual:
         print("RSI Validation passed!")
     else:
@@ -35,6 +36,6 @@ def validate_rsi_against_library(historical_stock_data):
 
 if __name__ == "__main__":
     current_dir = os.getcwd()
-    file_path = os.path.join(current_dir,"src","CSV","AAPL.csv")
+    file_path = os.path.join(current_dir,"src","CSV","META.csv")
     AAPL_data = pd.read_csv(file_path)
     validate_rsi_against_library(AAPL_data)

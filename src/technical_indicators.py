@@ -68,11 +68,56 @@ def calculate_RSI(df: pd.DataFrame, time_period: int) -> pd.DataFrame:
     #return df
     
     # USE library first then settle the RSI function when I have time 
-    price_change = df["Close"].diff()
-    gain = (price_change.where(price_change > 0, 0)).rolling(window=time_period).mean()
-    loss = (-price_change.where(price_change < 0, 0)).rolling(window=time_period).mean()
-    rs = gain / loss
-    df["RSI"] = 100 - (100 / (1 + rs))
+    #price_change = df["Close"].diff()
+    #gain = (price_change.where(price_change > 0, 0)).rolling(window=time_period).mean()
+    #loss = (-price_change.where(price_change < 0, 0)).rolling(window=time_period).mean()
+    #rs = gain / loss
+    #df["RSI"] = 100 - (100 / (1 + rs))
+    
+    closes = list(df["Close"])
+    
+    price_change = []
+    for i in range(1, len(closes)):
+        price_change.append(closes[i] - closes[i-1])
+    
+    gains = []
+    losses = []
+    
+    for change in price_change:
+        if change > 0:
+            gains.append(change)
+            losses.append(0)
+        else:
+            gains.append(0)
+            losses.append(-change)
+            
+    avg_gains = [None] * len(gains)
+    avg_losses = [None] * len(losses)
+    
+    first_avg_gain = sum(gains[:time_period]) / time_period
+    first_avg_loss = sum(losses[:time_period]) / time_period
+    avg_gains[time_period-1] = first_avg_gain
+    avg_losses[time_period-1] = first_avg_loss  
+    
+    
+    for i in range(time_period, len(gains)):
+        avg_gains[i] = ((avg_gains[i-1] * (time_period - 1)) + gains[i]) / time_period
+        avg_losses[i] = ((avg_losses[i-1] * (time_period - 1)) + losses[i]) / time_period
+    
+    
+    rsi_values = [None] * (len(closes))
+    
+    for i in range(len(avg_gains)):
+        if avg_gains[i] is None or avg_losses[i] is None:
+            continue
+        if avg_losses[i] == 0:
+            rs = float('inf')
+        else:
+            rs = avg_gains[i] / avg_losses[i]
+        rsi_values[i+1] = 100 - (100 / (1 + rs))
+    
+    df['RSI'] = rsi_values
+
     
     return df
         
@@ -173,7 +218,7 @@ def calculate_MACD(df: pd.DataFrame, short_period: int=12, long_period: int=26, 
     return df
 
 
-def apply_selected_technical_indicators(df: pd.DataFrame, selected_indicators):
+def apply_selected_technical_indicators(df: pd.DataFrame, selected_indicators) -> pd.DataFrame:
     """
     Applies a specific list of technical indicator functions to the dataframe
     
@@ -181,7 +226,7 @@ def apply_selected_technical_indicators(df: pd.DataFrame, selected_indicators):
     Returns:
     pd.DataFrame with the new indicator columns added.
     """
-    df_with_indicators = df.copy()
+    df_with_indicators = df
     # Loop through the user's selection and apply the corresponding function
     print(selected_indicators)
     

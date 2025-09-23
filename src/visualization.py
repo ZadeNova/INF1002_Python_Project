@@ -37,12 +37,13 @@ def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicat
     # fix the rows
 
     subplot_titles = get_subplot_titles(indicators)
-    
+
     fig = make_subplots(
-        rows=row_counter, cols=1, shared_xaxes=True,
-        vertical_spacing=0.05, subplot_titles=subplot_titles
-        #row_heights=row_heights
-    )
+    rows=3, cols=1, shared_xaxes=True,
+    vertical_spacing=0.05,
+    subplot_titles=subplot_titles,
+    row_heights=[0.6, 0.2, 0.2]   # 60%, 20%, 20%
+)
 
     # Ensure first row has dates
     fig.update_xaxes(showticklabels=True, row=1, col=1)
@@ -99,22 +100,21 @@ def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicat
         if indicator == SMA_200_LABEL:
             fig.add_trace(go.Scatter(x=df['Date'], y=df['SMA_200'], mode='lines', line=dict(color='red', width=2), name="SMA 200"))
 
-        if indicator == RSI_14_LABEL:
-            
-            fig.add_trace(go.Scatter(x=df['Date'], y=df["RSI"], mode="lines", name="RSI"), row=current_row, col=1)
-            current_row += 1
-        
         if indicator == MACD:
-           
-           fig.add_trace(go.Scatter(x=df['Date'], y=df["MACD"], mode="lines", name="MACD"), row=current_row, col=1)
-           
-           fig.add_trace(go.Scatter(x=df['Date'], y=df["Signal_Line"], mode="lines", name="Signal"), row=current_row, col=1)
-           
-           fig.add_trace(go.Bar(x=df['Date'], y=df["MACD_Histogram"], name="Histogram", 
-                                   marker_color=['rgba(0, 128, 0, 1)' if val >= 0 else 'rgba(255, 0, 0, 1)' for val in df["MACD_Histogram"]],
-                                   opacity=0.5,
-                                   hovertemplate="Histogram: %{y:.4f}<extra></extra>"), row=current_row, col=1)
-           current_row += 1
+            fig.add_trace(go.Scatter(x=df['Date'], y=df["MACD"], mode="lines", name="MACD"), row=2, col=1)
+            fig.add_trace(go.Scatter(x=df['Date'], y=df["Signal_Line"], mode="lines", name="Signal"), row=2, col=1)
+            fig.add_trace(go.Bar(
+            x=df['Date'], y=df["MACD_Histogram"], name="Histogram",
+            marker_color=['rgba(0, 128, 0, 1)' if val >= 0 else 'rgba(255, 0, 0, 1)' for val in df["MACD_Histogram"]],
+            opacity=0.5,
+            hovertemplate="Histogram: %{y:.4f}<extra></extra>"
+    ), row=2, col=1)
+
+        if indicator == RSI_14_LABEL:
+            fig.add_trace(go.Scatter(x=df['Date'], y=df["RSI"], mode="lines", name="RSI"), row=3, col=1)
+            fig.add_hline(y=70, line_dash="dash", line_color="red", row=3, col=1)
+            fig.add_hline(y=30, line_dash="dash", line_color="green", row=3, col=1)
+
            
            
         

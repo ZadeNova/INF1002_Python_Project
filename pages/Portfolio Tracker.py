@@ -2,17 +2,13 @@ import json
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import List, Dict, Any
+from src.analytics import calculate_daily_returns
 import os
 
 import pandas as pd
 import streamlit as st
 
 st.set_page_config(page_title="Portfolio Tracker", page_icon="💸", layout="wide")
-
-
-# Get the correct file paths
-# I will clean up this file when I have time 
-# - Erfan
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 USER_DATA_DIR = BASE_DIR / "data" / "user_data"
@@ -44,6 +40,7 @@ def load_portfolio(portfolio_name: str):
     if os.path.exists(filename):
         with open(filename, 'r') as file:
             data = json.load(file)
+            st.session_state[f'portfolio_{portfolio_name}'] = data
             return data
     return []
     
@@ -52,15 +49,12 @@ def save_portfolio(username: str, new_stock_holding: StockHoldings) -> None:
 
     filename = USER_DATA_DIR / f"portfolio_{username}.json"
 
-    print("bye")
     # Check if file exists
     if os.path.exists(filename):
         with open(filename, 'r') as file:
             try:
                 
                 existing_data = json.load(file)
-                print(existing_data)
-                print('hi ^^')
             except json.JSONDecodeError:
                 # File exists but is empty or invalid JSON
                 print(f"Error with JSON file")
@@ -74,13 +68,13 @@ def save_portfolio(username: str, new_stock_holding: StockHoldings) -> None:
         
         # Create new entry in JSON format
         existing_data.append(asdict(new_stock_holding))
-        print(f"HERE IS {existing_data}")
-    
     
     # Write back to file with added data
     # OR create a file if it has not been created before
     with open(filename, 'w',encoding='utf-8') as file:
         json.dump(existing_data,file)
+    
+    st.session_state[f'portfolio_{username}'] = existing_data
     
 
 
@@ -139,16 +133,15 @@ if portfolio_name:
                 #print(new_holding)
                 #user_portfolio.append(asdict#(new_holding))
                 
-                save_portfolio(portfolio_name, new_stock_holding=new_holding                             )
-
+                save_portfolio(portfolio_name, new_stock_holding=new_holding)
                 st.success(f"Added {amount} shares(s) of {ticker} @ ${buy_price:.2f} to your portfolio.")
-                
-                # Rerun to update this page
+                st.session_state[f'portfolio_{portfolio_name}'] = load_portfolio(portfolio_name)
+                #Rerun to update this page
                 st.rerun()
     
     # Add the table to display Portfolio
     stock_dataframe = pd.DataFrame(user_portfolio)
-    print(stock_dataframe)
+    #print(stock_dataframe)
     edited_stock_dataframe = st.data_editor(
         stock_dataframe,
         num_rows='dynamic',
@@ -157,9 +150,29 @@ if portfolio_name:
     if st.button("Save Changes"):
         # Convert back to list of dicts
         updated_stock_portfolio = edited_stock_dataframe.to_dict('records')
-        print(updated_stock_portfolio)
-        # the updated stock portfolio is not saved into the file yet.
-        # Still deciding whether to use this table or remove the add holdings section.
+        #print(updated_stock_portfolio)
+        # Save to JSON file
+        st.session_state[f'portfolio_{portfolio_name}'] = updated_stock_portfolio  # Update session state
+        with open(USER_DATA_DIR / f"portfolio_{portfolio_name}.json", 'w', encoding='utf-8') as file:
+            json.dump(updated_stock_portfolio, file)
 
-
-
+#Daily returns UI on sidebar (api data to get current stock price and calculate daily returns)
+    st.sidebar.header("Daily Returns")
+    if not stock_dataframe.empty:
+        daily_returns = calculate_daily_returns(stock_dataframe)
+        if daily_returns:
+            for ticker, values in daily_returns.items():
+                daily_return = values['daily_return']
+                value = values['value']
+                if daily_return is not None:
+                    if daily_return <= 0:
+                        st.sidebar.metric(label=f"{ticker}", value=f"${value:.2f}", delta=f"{daily_return:.2f}%")
+                    else:
+                        st.sidebar.metric(label=f"{ticker}", value=f"${value:.2f}", delta=f"{daily_return:.2f}%")
+                else:
+                    st.sidebar.write(f"{ticker}: Data not available")
+        else:
+            st.sidebar.write("No tickers found in portfolio.")
+    else:
+        st.sidebar.write("Portfolio is empty. Add stocks to see daily returns.")
+    

@@ -3,7 +3,8 @@ import numpy as np
 import timeit
 import os
 import talib
-import datetime 
+import yfinance as yf
+from datetime import date
 
 #for tickers in config.TICKERS:
     #df = fetch_stock_data(tickers, save=False)
@@ -153,7 +154,35 @@ def max_profit_calculation(df: pd.DataFrame) -> tuple[pd.DataFrame, float, int]:
     
 
 
-def calculate_daily_returns():
+def calculate_daily_returns(stock_dataframe: pd.DataFrame):
+    if not stock_dataframe.empty:
+        tickers = stock_dataframe['ticker'].tolist()
+        import yfinance as yf
+        d = date(2025, 9, 22) 
+        #api_data = yf.download(tickers, start = "2025-09-22", end = "2025-09-22" ,interval="1d", group_by='ticker', threads=True)
+        api_data = yf.download(tickers, start=d, interval="1d", group_by='ticker', threads=True)
+        print(api_data)
+        daily_returns = {}
+        for ticker in tickers:
+            try:
+                if len(tickers) == 1:
+                    close_prices = api_data['Close']
+                else:
+                    close_prices = api_data[ticker]['Close']
+                if len(close_prices) >= 2:
+                    latest_close = close_prices[-1]
+                    previous_close = close_prices[-2]
+                    value = latest_close
+                    print(value)
+                    print(previous_close)
+                    daily_return = (latest_close - previous_close) / previous_close *100
+                    daily_returns[ticker] = {'daily_return': daily_return, 'value': value}
+                else:
+                    daily_returns[ticker] = {'daily_return': None, 'value': None}
+            except Exception as e:
+                daily_returns[ticker] = {'daily_return': None, 'value': None}
+                print(f"Error fetching data for {ticker}: {e}")
+        return daily_returns
     pass
 
 #calculate_upward_and_Downward_runs(df)

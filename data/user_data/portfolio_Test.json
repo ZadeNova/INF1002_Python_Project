@@ -1,1 +1,1 @@
-[{"ticker": "AAPL", "quantity": 10.0, "price_per_share": 50.0}, {"ticker": "GME", "quantity": 100.0, "price_per_share": 22.0}]
+[{"ticker": "AAPL", "quantity": 20.0, "price_per_share": 200.0}, {"ticker": "BABA", "quantity": 200.0, "price_per_share": 10.0}]

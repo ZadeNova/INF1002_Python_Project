@@ -41,10 +41,3 @@ def calculate_SMA(df: pd.DataFrame, user_window):
         avg_prices.insert(0, window_average)
         slider -= 1
     return avg_prices
-
-
-#SMA Calculator using talib
-def calculate_SMA_talib(df, window=50, column="Close"):
-    #df[f"SMA{window}"] = df[column].rolling(window=window).mean()
-    df[f"SMA_{window}"]= talib.SMA(df['Close'], timeperiod=window)
-    return df

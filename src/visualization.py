@@ -44,7 +44,7 @@ def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicat
     
     
 
-    df['Date'] = pd.to_datetime(df.index)
+    
     print(df.info())
     
     

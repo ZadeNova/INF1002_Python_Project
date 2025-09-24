@@ -131,7 +131,7 @@ def calculate_upward_and_Downward_runs(df: pd.DataFrame) -> tuple[pd.DataFrame,d
     return df, longest_up, longest_down
 
 
-def max_profit_calculation(df: pd.DataFrame) -> tuple[pd.DataFrame, float]:
+def max_profit_calculation(df: pd.DataFrame) -> tuple[pd.DataFrame, float, int]:
     
     profit = 0
     
@@ -144,10 +144,11 @@ def max_profit_calculation(df: pd.DataFrame) -> tuple[pd.DataFrame, float]:
             df.iloc[i, df.columns.get_loc("Sell_Signal")] = True
             profit += df["Close"].iloc[i] - df["Close"].iloc[i-1]
     
-    #print(df["Buy_Signal"].head(15))
-    #print(df["Sell_Signal"].tail(15))
+    # Buy and sell signals will amount to the same due to the greedy algorithm ( logic used above )
+    # For every buy there is a corresponding sell
+    # So we can just return the sum of buy signals
     
-    return df, profit
+    return df, profit , df["Buy_Signal"].sum()
 
     
 

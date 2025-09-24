@@ -5,6 +5,7 @@ from src.visualization import plot_visualization
 from src.technical_indicators import *
 from src.analytics import *
 from src.config import *
+from src.utils import *
 
 
 # Set up Streamlit app
@@ -18,13 +19,6 @@ uploaded_file = st.file_uploader("Upload a CSV file", type=["csv"])
 # Option to enter stock api
 api = st.text_input('Enter Stock Ticker (for yfinance API)', '')
 
-# Function to verify if data is in correct format
-def verify_data_format(data):
-    required_columns = ['Date', 'Close', 'High', 'Low', 'Open', 'Volume']
-    for col in required_columns:
-        if col in data.columns:
-            return True
-    return False
 
 # Initialising data to hold csv file/api data
 data = None
@@ -33,7 +27,10 @@ data = None
 if uploaded_file is not None:
     data = pd.read_csv(uploaded_file, parse_dates=["Date"])
     data.set_index("Date", inplace=True)
-    #data['Date'] = pd.to_datetime(data.index)
+    
+    # Set date_range for the new stock.
+    st.session_state["date_range"] = (data.index.min().date(), data.index.max().date())
+    
     if verify_data_format(data):
         st.success("CSV uploaded successfully ✅")
     else:
@@ -57,8 +54,41 @@ type_of_chart_selected = st.sidebar.selectbox(
         ("LineChart","CandleStick"),
                                          )
 
-# Option to select technical indicators
+
+
+
+
+
+
+
 if data is not None and verify_data_format(data.reset_index()):
+    
+    if "date_range" not in st.session_state:
+        st.session_state["date_range"] = (data.index.min().date(), data.index.max().date())
+    
+    
+  
+    
+
+    
+    st.sidebar.header("📅 Date Range Selection")
+    date_range = st.sidebar.date_input(
+        "Select Date Range",
+        value=st.session_state["date_range"],
+        min_value=data.index.min().date(),
+        max_value=data.index.max().date()
+    )
+    
+    if len(date_range) == 2:
+        st.session_state["date_range"] = date_range
+    
+    start_date , end_date = st.session_state["date_range"]
+    data_filtered = filter_dataframe_by_date_range(data, start_date, end_date)
+    
+    
+    # Default date will always be 1Y or 3Y
+    # Filter the date here in the dataframe
+    
     
     st.sidebar.header("📊 Indicators")
     
@@ -71,12 +101,12 @@ if data is not None and verify_data_format(data.reset_index()):
         )
     
     st.sidebar.subheader("Price Trend Highlights")
-    show_upward_trends = st.sidebar.checkbox("Show Upward Trends", value=False)
-    show_downward_trends = st.sidebar.checkbox("Show Downward Trends", value=False)
+    show_upward_trends = st.sidebar.checkbox("Show Upward Trends 📈", value=False)
+    show_downward_trends = st.sidebar.checkbox("Show Downward Trends 📉", value=False)
     
     st.sidebar.subheader("Trade Signals")
-    show_buy_signals = st.sidebar.checkbox("Show Buy Signals", value=False)
-    show_sell_signals = st.sidebar.checkbox("Show Sell Signals", value=False)
+    show_buy_signals = st.sidebar.checkbox("Show Buy Signals 🟢", value=False)
+    show_sell_signals = st.sidebar.checkbox("Show Sell Signals 🔴", value=False)
 
         
     print(data.head(5))
@@ -84,27 +114,42 @@ if data is not None and verify_data_format(data.reset_index()):
     print("Before Data Processing")
 
     # Data processing ( Technical Indicators are applied to dataframe )
-    df_processed = apply_selected_technical_indicators(data, selected_technical_indicators)
+    df_processed = apply_selected_technical_indicators(data_filtered, selected_technical_indicators)
     
     
     # Implement trade signals and trend highlights here
     if show_upward_trends or show_downward_trends:
-        print(df_processed.head(5), "TESTTTT")
         df_processed, longest_up_streak, longest_down_streak = calculate_upward_and_Downward_runs(df_processed)
-        st.sidebar.write(f"Longest Upward Trend: {longest_up_streak['length']} days from {longest_up_streak['start'].date()} to {longest_up_streak['end'].date()}")
-        st.sidebar.write(f"Longest Downward Trend: {longest_down_streak['length']} days from {longest_down_streak['start'].date()} to {longest_down_streak['end'].date()}")
+        
+        column_to_display_upward_streak , column_to_display_downward_streak = st.columns(2)
+        
+        column_to_display_upward_streak.metric("📈 Longest Upward Streak", f"{longest_up_streak['length']}      days", f"From {longest_up_streak['start'].date()} to {longest_up_streak['end'].date()}", border=True)
+        
+        column_to_display_downward_streak.metric("📉 Longest Downward Streak", f"{longest_down_streak       ['length']} days", f"From {longest_down_streak['start'].date()} to {longest_down_streak['end'].date()}  ", border=True)
     
     if show_buy_signals or show_sell_signals:
-        df_processed, max_profit = max_profit_calculation(df_processed)
+        df_processed, max_profit, num_buys = max_profit_calculation(df_processed)
         st.sidebar.write(f"Maximum Theoretical Profit (multiple transactions) (No transaction fee): ${max_profit:.2f}")
-    
+        
+        column_to_display_buy_and_sell = st.columns(1)[0]
+        column_to_display_buy_and_sell.metric("Total Buy and Sell Signals", f"{num_buys}      buys", "", border=True)
+        
+        
+        
     print(df_processed.head(5))
-    
     print(df_processed.info())
     print(f"After data processed")
-    #print(f"CHART SELECTOR {type_of_chart_selected} {selected_technical_indicators}")
+    
+    
     stock_name = api if api else "Uploaded Data"
     fig = plot_visualization(df=df_processed, stock_name=stock_name, type_of_chart=type_of_chart_selected, indicators=selected_technical_indicators, show_buy_signals=show_buy_signals, show_sell_signals=show_sell_signals, show_upward_trends=show_upward_trends, show_downward_trends=show_downward_trends)
     st.plotly_chart(fig, use_container_width=True)
 
+    
+    
+    
+    
+    
+    # More UI elements to display analytics about the stock?
+    
 

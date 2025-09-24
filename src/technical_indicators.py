@@ -1,3 +1,27 @@
+"""
+technical_indicators.py
+
+Purpose:
+    This module implements calculations for various technical indicators
+    used in stock market analysis.
+
+Functions:
+    - calculate_RSI(df: pd.DataFrame, time_period: int) -> pd.DataFrame
+    - calculate_SMA(df: pd.DataFrame, user_window: int) -> pd.DataFrame
+    - calculate_EMA(df: pd.DataFrame, period: int, column: str="Close", ema_col: str=None) -> pd.DataFrame
+    - calculate_MACD(df: pd.DataFrame, short_period: int=12, long_period: int=26, signal_period: int=9, column: str="Close") -> pd.DataFrame
+    - calculate_VWAP(df: pd.DataFrame) -> pd.DataFrame
+    - apply_selected_technical_indicators(df: pd.DataFrame, selected_indicators) -> pd.DataFrame    
+
+Notes:
+    Each function modifies the input DataFrame in-place by adding new columns
+    with the calculated indicator values.
+"""
+
+
+
+
+
 import pandas as pd
 import numpy as np
 import timeit
@@ -6,73 +30,30 @@ import talib
 from functools import partial
 from src.config import *
 
-# File to combine the 5 technical indicators here
 
 
 def calculate_RSI(df: pd.DataFrame, time_period: int) -> pd.DataFrame:
-    ## Time Complexity O(n)
-    ## Space Complexity O(n)
-    #df = df.copy()
-    ## Calculate daily gains and losses
-    #df['Change'] = df['Close'].diff()
-    #df['Gain'] = df['Change'].apply(lambda x: max(x, 0))
-    #df['Loss'] = df['Change'].apply(lambda x: max(-x, 0))
-    #
-    ## Initialize average gain and loss
-    #df['Avg_Gain'] = 0
-    #df['Avg_Loss'] = 0
-    #
-    #df.at[time_period, 'Avg_Gain'] = df['Gain'].iloc[1:time_period+1].mean()
-    #df.at[time_period, 'Avg_Loss'] = df['Gain'].iloc[1:time_period+1].mean()
-    #
-    ## 3 Calculate RSI for the first calculation day
-    #df['RS'] = 0.0
-    #df['RSI'] = 0.0
-    #
-    #df.at[time_period, 'RS'] = df.at[time_period, 'Avg_Gain'] / df.at[time_period, #'Avg_Loss'] if df.at[time_period, 'Avg_Loss'] != 0 else 0
-    #df.at[time_period, 'RSI'] = 100 - 100 / ( 1 + df.at[time_period, 'RS'])
-    #
-    #
-    #print(df)
-    #print("whatrs going on here")
-    #
-    ## 4 Calculate RSI using wilder's smoothing for subsequent days
-    #df_idx = df.index
-    #for i in range(time_period + 1, len(df)):
-    #    prev_avg_gain = df.at[i-1, 'Avg_Gain']
-    #    prev_avg_loss = df.at[i-1, 'Avg_Loss']
-    #    
-    #    #gain = df.at[i, 'Gain']
-    #    gain = df.loc[df_idx[i], 'Gain']
-    #    loss = df.loc[df_idx[i], 'Loss']
-    #    
-    #    avg_gain = (prev_avg_gain * (time_period - 1) + gain) / time_period
-    #    avg_loss = (prev_avg_loss * (time_period - 1) + loss) / time_period
-    #    
-    #    df.at[i, 'Avg_Gain'] = avg_gain
-    #    df.at[i, 'Avg_Loss'] = avg_loss
-    #    
-    #    rs = avg_gain / avg_loss if avg_loss != 0 else 0
-    #    rsi = 100 - 100 / (1 + rs)
-    #    
-    #    df.at[i, 'RS'] = rs
-    #    df.at[i, 'RSI'] = rsi
-    #    
-    ## Set rsi for first period to none
-    #df.loc[df.index[:time_period], 'RSI'] = None
-    #
-    #
-    ## Clean up dataframe columns
-    #df = df.drop(columns=['Change','Gain','Loss','Avg_Gain','Avg_Loss','RS'])
-    #
-    #return df
+
+    """
+    This function calculates the Relative Strength Index (RSI) for the given DataFrame. The DataFrame is modified in-place to include a new column 'RSI'.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing stock data with necessary columns.
+        time_period (int): The window size for calculating the RSI.
+
+    Returns:
+        pd.DataFrame: The modified DataFrame with a new column 'RSI'.
     
-    # USE library first then settle the RSI function when I have time 
-    #price_change = df["Close"].diff()
-    #gain = (price_change.where(price_change > 0, 0)).rolling(window=time_period).mean()
-    #loss = (-price_change.where(price_change < 0, 0)).rolling(window=time_period).mean()
-    #rs = gain / loss
-    #df["RSI"] = 100 - (100 / (1 + rs))
+    Notes:
+        - RSI is a momentum oscillator that measures the speed and change of price movements.
+        - The function assumes that the input DataFrame has a 'Close' column.
+        - The first (time_period) rows will have NaN values for the RSI since there is insufficient data to calculate the average gains and losses.
+        - The function uses a sliding window approach to efficiently compute the RSI for each row.
+        - This is O(n) implementation of RSI calculation cause it uses the sliding window approach.
+        - The RSI values range from 0 to 100, with values above 70 indicating overbought conditions and values below 30 indicating oversold conditions.
+        - The function uses the wilders smoothing method for calculating average gains and losses.
+        
+    """
     
     closes = list(df["Close"])
     
@@ -125,6 +106,24 @@ def calculate_RSI(df: pd.DataFrame, time_period: int) -> pd.DataFrame:
 
 
 def calculate_EMA(df: pd.DataFrame, period, column: str="Close", ema_col: str=None) -> pd.DataFrame:
+    
+    """
+    This function calculates the Exponential Moving Average (EMA) for the given DataFrame. The DataFrame is modified in-place to include a new column for the EMA values.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing stock data with necessary columns.
+        period (int): The window size for calculating the EMA.
+        column (str, optional): The column name to calculate EMA on. Defaults to "Close
+
+    Returns:
+        od: pd.DataFrame: The modified DataFrame with a new column for the EMA values.
+    
+    Notes:
+        - EMA gives more weight to recent prices, making it more responsive to new information.
+        - The function assumes that the input DataFrame has the specified column.
+        
+    """
+    
     if ema_col is None:
         ema_col = f"EMA{period}"
     
@@ -155,7 +154,26 @@ def calculate_EMA(df: pd.DataFrame, period, column: str="Close", ema_col: str=No
 
 
 
-def calculate_SMA(df: pd.DataFrame, user_window: int):
+def calculate_SMA(df: pd.DataFrame, user_window: int) -> pd.DataFrame:
+    
+    """
+    This function calculates the Simple Moving Average (SMA) for the given DataFrame. The DataFrame is modified in-place to include a new column 'SMA_{user_window}'.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing stock data with necessary columns.
+        user_window (int): The window size for calculating the SMA.
+
+    Returns:
+        pd.DataFrame: The modified DataFrame with a new column 'SMA_{user_window}'.
+    
+    Notes:
+        - SMA is calculated as the average of the closing prices over the specified window.
+        - The function assumes that the input DataFrame has a 'Close' column.
+        - The first (user_window - 1) rows will have NaN values for the SMA since there is insufficient data to calculate the average.
+        - The function uses a sliding window approach to efficiently compute the SMA for each row.
+        
+    """
+    
     avg_prices = []
 
     #starts from the last date
@@ -183,7 +201,21 @@ def calculate_SMA(df: pd.DataFrame, user_window: int):
 
 
 def calculate_VWAP(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    This function calculates the Volume Weighted Average Price (VWAP) for the given DataFrame. The DataFrame is modified in-place to include a new column 'VWAP'.
 
+    Args:
+        df (pd.DataFrame): DataFrame containing stock data with necessary columns.
+
+    Returns:
+        pd.DataFrame: The modified DataFrame with a new column 'VWAP'.
+    
+    Notes:
+        - VWAP is calculated using the formula: VWAP = (Cumulative Price * Volume) / Cumulative Volume
+        - The function assumes that the input DataFrame has the necessary columns: 'High', 'Low', 'Close', and 'Volume'.
+        - The function uses cumulative sums to efficiently compute VWAP for each row.
+        
+    """
     #Calculate Volume Weighted Average Price (VWAP).
     price = (df['High'] + df['Low'] + df['Close']) / 3
     total_vol = df['Volume'].cumsum()
@@ -193,6 +225,26 @@ def calculate_VWAP(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def calculate_MACD(df: pd.DataFrame, short_period: int=12, long_period: int=26, signal_period: int=9, column: str="Close") -> pd.DataFrame:
+    """
+    This function calculates the Moving Average Convergence Divergence (MACD) for the given DataFrame. The DataFrame is modified in-place to include new columns 'MACD', 'Signal_Line', and 'MACD_Histogram'.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing stock data with necessary columns.
+        short_period (int, optional): The short-term EMA period. Defaults to 12.
+        long_period (int, optional): The long-term EMA period. Defaults to 26.
+        signal_period (int, optional): The signal line EMA period. Defaults to 9.
+        column (str, optional): The column name to calculate MACD on. Defaults to "Close".
+
+    Returns:
+        pd.DataFrame: The modified DataFrame with new columns 'MACD', 'Signal_Line', and 'MACD_Histogram'.
+    
+    Notes:
+        - MACD is a trend-following momentum indicator that shows the relationship between two moving averages of a security's price.
+        - The function assumes that the input DataFrame has the specified column.
+        - The MACD line is calculated as the difference between the short-term and long-term EMAs.
+        - The signal line is the EMA of the MACD line.
+        
+    """
     #Ensure numeric values in close column
     df[column] = pd.to_numeric(df[column], errors="coerce")
     
@@ -218,13 +270,22 @@ def calculate_MACD(df: pd.DataFrame, short_period: int=12, long_period: int=26, 
     return df
 
 
-def apply_selected_technical_indicators(df: pd.DataFrame, selected_indicators) -> pd.DataFrame:
+def apply_selected_technical_indicators(df: pd.DataFrame, selected_indicators: list) -> pd.DataFrame:
     """
-    Applies a specific list of technical indicator functions to the dataframe
-    
-    
+    This function applies the selected technical indicators to the given DataFrame. The Dataframe is modified in-place to include new columns for each selected indicator.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing stock data with necessary columns.
+        selected_indicators (list): List of technical indicators to apply. Each indicator should be a key in the TECHNICAL_INDICATORS dictionary.
+
     Returns:
-    pd.DataFrame with the new indicator columns added.
+        pd.DataFrame: The modified DataFrame with new columns for each selected technical indicator.
+    
+    Notes:
+        - The function uses a dictionary mapping indicator names to their corresponding functions. These is hardcoded in the TECHNICAL_INDICATORS dictionary. The dictionary uses functools.partial to pre-fill parameters for each indicator function.
+        - Each indicator function is called with the DataFrame and any required parameters.
+        - The function assumes that the input DataFrame has the necessary columns for the selected indicators.
+        
     """
     df_with_indicators = df
     # Loop through the user's selection and apply the corresponding function
@@ -241,6 +302,12 @@ def apply_selected_technical_indicators(df: pd.DataFrame, selected_indicators) -
     #print(df_with_indicators[:10:50])
     return df_with_indicators
         
+
+
+"""
+    The reason why we add a TECHNICAL_INDICATORS dictionary is to map user-friendly indicator names to their corresponding functions. This allows for dynamic selection and application of technical indicators based on user input or configuration settings. By using a dictionary, we can easily extend or modify the available indicators without changing the core logic of the application. The use of functools.partial allows us to pre-fill certain parameters for each indicator function, making it easier to call them with just the DataFrame as an argument.
+
+"""
 
 TECHNICAL_INDICATORS = {
     SMA_20_LABEL: partial(calculate_SMA, user_window=20),

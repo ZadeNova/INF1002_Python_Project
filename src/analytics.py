@@ -1,3 +1,21 @@
+"""
+analytics.py
+
+Purpose:
+    This module contains functions for analyzing stock data, including calculating
+    upward and downward trends, maximum profit calculations, and daily returns.
+
+Functions:
+    - calculate_upward_and_Downward_runs(df: pd.DataFrame) -> tuple[pd.DataFrame,dict,dict]
+    - max_profit_calculation(df: pd.DataFrame) -> tuple[pd.DataFrame, float, int]
+    - calculate_daily_returns(stock_dataframe: pd.DataFrame) -> dict
+
+Notes:
+    Each function modifies the input DataFrame in-place by adding new columns
+    with the analysis results.
+"""
+
+
 import pandas as pd
 import numpy as np
 import timeit
@@ -6,22 +24,29 @@ import talib
 import yfinance as yf
 from datetime import date
 
-#for tickers in config.TICKERS:
-    #df = fetch_stock_data(tickers, save=False)
 
-#for tickers in config.TICKERS:
-    #latest_price = fetch_latest_price(tickers)
 
-#tickers = "AAPL" #just for testing
-#df = fetch_stock_data(tickers, save=False)
-
-#maybe switch to dictionary, dates as keys, prices as values
-up_trend_list = [] #stores length of each upward trend
-down_trend_list = [] #stores length of each downward trend
-up_trend_dates = [] #stores start and end date of each upward trend
-down_trend_dates = [] #stores start and end date of each downward trend
 
 def calculate_upward_and_Downward_runs(df: pd.DataFrame) -> tuple[pd.DataFrame,dict,dict]:
+    """
+    This function calculates the upward and downward trends in stock prices.
+    It identifies consecutive days of price increases (upward trends) and decreases (downward trends),
+    and records the length and dates of these trends.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing stock data with a 'Close' column.
+
+    Returns:
+        tuple: A tuple containing:
+            - pd.DataFrame: The original DataFrame with additional columns for upward and downward trends.
+            - dict: A dictionary with details of the longest upward trend (length, start date, end date).
+            - dict: A dictionary with details of the longest downward trend (length, start date, end date).
+    
+    Notes:
+        - The function adds two new columns to the DataFrame: 'Up_Trend' and 'Down_Trend',
+          which indicate the length of the current upward or downward trend at each row.
+        
+    """
 
     #Counter for number of consecutive up and down days
     #up_streak_counter = 0
@@ -133,6 +158,28 @@ def calculate_upward_and_Downward_runs(df: pd.DataFrame) -> tuple[pd.DataFrame,d
 
 
 def max_profit_calculation(df: pd.DataFrame) -> tuple[pd.DataFrame, float, int]:
+    """
+    This function calculates the maximum theoretical profit that could be achieved
+    by buying and selling stocks based on daily price movements. It uses a greedy algorithm. This function also counts the number of buy signals generated. 
+    IMPORTANT: This function assumes that there are no transaction fees or taxes involved.
+
+    Args:
+        pd.DataFrame: DataFrame containing stock data with a 'Close' column.
+
+    Returns:
+        tuple: A tuple containing:
+            - pd.DataFrame: The original DataFrame with additional columns for buy and sell signals.
+            - float: The maximum theoretical profit that could be achieved.
+            - int: The total number of buy signals generated.
+    
+    Notes:
+        - The function adds two new columns to the DataFrame: 'Buy_Signal' and 'Sell_Signal',
+          which indicate the days on which a buy or sell action would be taken.
+        - The greedy algorithm buys on days when the price increases compared to the previous day
+          and sells on the next day, accumulating profit from each transaction.
+        - The function returns the total profit and the number of buy signals generated.
+        
+    """
     
     profit = 0
     
@@ -154,7 +201,7 @@ def max_profit_calculation(df: pd.DataFrame) -> tuple[pd.DataFrame, float, int]:
     
 
 
-def calculate_daily_returns(stock_dataframe: pd.DataFrame):
+def calculate_daily_returns(stock_dataframe: pd.DataFrame) -> dict:
     if not stock_dataframe.empty:
         tickers = stock_dataframe['ticker'].tolist()
         import yfinance as yf
@@ -190,9 +237,6 @@ def calculate_daily_returns(stock_dataframe: pd.DataFrame):
 #print(len(up_trend_dates))
 #print(len(down_trend_list))
 #print(len(down_trend_dates))
-
-for i in range(0, len(down_trend_list)):
-    print(f"{i+1} Downward Trend of {down_trend_list[i]} days from {down_trend_dates[i]}")
 
 
 #testing max profit calculation

@@ -1,3 +1,18 @@
+"""
+run_loader.py
+
+Purpose:
+    This module is responsible for running the data loading functions to fetch and update stock data.
+
+Functions:
+    Functions are from the data_loader module
+
+Notes:
+    It uses functions from the data_loader module to fetch historical stock data and the latest prices.
+"""
+
+
+
 from data_loader import fetch_stock_data, fetch_latest_price
 import config
 

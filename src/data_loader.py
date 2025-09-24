@@ -1,3 +1,20 @@
+"""
+data_loader.py
+
+Purpose:
+    This module handles data fetching from Yahoo Finance and saving it locally as CSV files.
+
+Functions:
+    - fetch_stock_data(ticker: str, start: str, end: str, save: bool=True) -> pd.DataFrame
+    - fetch_latest_price(ticker: str, save: bool=True) -> float
+
+
+Notes:
+    Each function interacts with the yfinance library to retrieve stock data and
+    saves it in a structured format for further analysis.
+"""
+
+
 # data_loader.py
 import yfinance as yf
 import pandas as pd
@@ -14,7 +31,7 @@ os.makedirs(DATA_DIR, exist_ok=True)
 # -----------------------------
 # Fetch historical data
 # -----------------------------
-def fetch_stock_data(ticker, start=config.START_DATE, end=config.END_DATE, save=True):
+def fetch_stock_data(ticker: str, start =config.START_DATE, end=config.END_DATE, save: bool=True):
     """
     Fetch stock data from Yahoo Finance and incrementally update the CSV.
     """
@@ -54,7 +71,7 @@ def fetch_stock_data(ticker, start=config.START_DATE, end=config.END_DATE, save=
 # -----------------------------
 # Fetch latest price
 # -----------------------------
-def fetch_latest_price(ticker, save=True):
+def fetch_latest_price(ticker: str, save: bool =True):
     """
     Fetch the latest market price and append to a _latest.csv file.
     """

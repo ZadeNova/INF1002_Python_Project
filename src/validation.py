@@ -1,4 +1,23 @@
-#Validating results from our functions with the results using functions from pandas
+"""
+validation.py
+
+Purpose:
+    This module implements validation functions to ensure the correctness
+    of technical indicator calculations by comparing them against established libraries such as TA-Lib.
+
+Functions:
+    - validate_SMA_results(df: pd.DataFrame, user_window: int) -> pd.DataFrame
+    - validate_MACD_results(df: pd.DataFrame) -> pd.DataFrame
+    - validate_EMA_results(df: pd.DataFrame, user_window: int) -> pd.DataFrame
+    - validate_rsi_against_library(historical_stock_data: pd.DataFrame) -> pd.DataFrame
+
+Notes:
+    Each function compares the results of custom implemented technical indicators functions with those from TA-Lib for validation purposes.
+"""
+
+
+
+
 import pandas as pd
 import numpy as np
 #from analytics import EMA, MACD, RSI, SMA, VWAP
@@ -26,7 +45,24 @@ user_window = int(50) #just for testing
 
 
 #Data Validation for SMA (Comparing our SMA function with talib SMA function)
-def validate_SMA_results(df, user_window):
+def validate_SMA_results(df: pd.DataFrame, user_window: int) -> pd.DataFrame:    
+    """
+    This function validates the Simple Moving Average (SMA) calculation
+    by comparing the results from a custom implementation with those from the TA-Lib library.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing stock data with necessary columns.
+        user_window (int): The window size for calculating the SMA.
+
+    Returns:
+        pd.DataFrame: DataFrame with both custom and TA-Lib SMA columns for comparison.
+    
+    Notes:
+        - The function assumes that the input DataFrame contains a 'Close' column.
+        - It fills NaN values with 0 for comparison purposes.
+        - Discrepancies between the two methods are printed to the console.
+        
+    """
 
     test_case = True
     
@@ -51,7 +87,24 @@ def validate_SMA_results(df, user_window):
         print("All test cases passed!")
         return df
 
-def validate_MACD_results(df):
+def validate_MACD_results(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    This function validates the Moving Average Convergence Divergence (MACD) calculation
+    by comparing the results from a custom implementation with those from the TA-Lib library.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing stock data with necessary columns.
+        
+
+    Returns:
+        pd.DataFrame: DataFrame with both custom and TA-Lib MACD columns for comparison.
+    
+    Notes:
+        - The function assumes that the input DataFrame contains a 'Close' column.
+        - It fills NaN values with 0 for comparison purposes.
+        - Discrepancies between the two methods are printed to the console.
+        
+    """
 
     test_case = True
 
@@ -86,7 +139,24 @@ def validate_MACD_results(df):
         print("All test cases passed!")
         return df
 
-def validate_EMA_results(df, user_window):
+def validate_EMA_results(df: pd.DataFrame, user_window: int) -> pd.DataFrame:  
+    """
+    This function validates the Exponential Moving Average (EMA) calculation
+    by comparing the results from a custom implementation with those from the TA-Lib library.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing stock data with necessary columns.
+        user_window (int): The window size for calculating the EMA.
+
+    Returns:
+        pd.DataFrame: DataFrame with both custom and TA-Lib EMA columns for comparison.
+    
+    Notes:
+        - The function assumes that the input DataFrame contains a 'Close' column.
+        - It fills NaN values with 0 for comparison purposes.
+        - Discrepancies between the two methods are printed to the console.
+        
+    """
 
     test_case = True
 
@@ -112,10 +182,27 @@ def validate_EMA_results(df, user_window):
         print("All test cases passed!")
         return df
     
-def validate_rsi_against_library(historical_stock_data):
+def validate_rsi_against_library(historical_stock_data: pd.DataFrame, window: int) -> pd.DataFrame:
+    """
+    This function validates the Relative Strength Index (RSI) calculation
+    by comparing the results from a custom implementation with those from the TA-Lib library.
+
+    Args:
+        historical_stock_data (pd.DataFrame): DataFrame containing stock data with necessary columns.
+        window (int): The window size for calculating the RSI.
+    
+    Returns:
+        pd.DataFrame: DataFrame with both custom and TA-Lib RSI columns for comparison.
+    
+    Notes:
+        - The function assumes that the input DataFrame contains a 'Close' column.
+        - It fills NaN values with 0 for comparison purposes.
+        - Discrepancies between the two methods are printed to the console.
+        
+    """
     print('Running RSI Validation')
-    talab_library_calculated_RSI = talib.RSI(historical_stock_data['Close'],timeperiod=14)
-    manually_calculated_RSI = calculate_RSI(historical_stock_data,14)
+    talab_library_calculated_RSI = talib.RSI(historical_stock_data['Close'],timeperiod=window)
+    manually_calculated_RSI = calculate_RSI(historical_stock_data,window)
     
     
     compare_talab_and_manual = np.allclose(talab_library_calculated_RSI, manually_calculated_RSI['RSI'], rtol=1e-3, atol=1e-5,equal_nan=True)
@@ -130,6 +217,7 @@ def validate_rsi_against_library(historical_stock_data):
         return None
     
 
+#validate_rsi_against_library(df, 14)
 #validate_EMA(df, user_window)
 validate_SMA_results(df, user_window)
 #validate_MACD_results(df)

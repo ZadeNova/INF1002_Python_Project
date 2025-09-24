@@ -1,3 +1,19 @@
+"""
+visualization.py
+
+Purpose:
+    This module contains functions for visualizing stock data and technical indicators.
+
+Functions:
+    - plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicators=None ,show_buy_signals=False, show_sell_signals=False, show_upward_trends=False, show_downward_trends=False) -> go.Figure
+    
+    
+Notes:
+    The main function creates a Plotly figure with subplots for stock prices and selected technical indicators.
+"""
+
+
+
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -20,7 +36,30 @@ def get_subplot_titles(indicators):
 
 # Plotting Function
 def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicators=None ,show_buy_signals=False, show_sell_signals=False, show_upward_trends=False, show_downward_trends=False) -> go.Figure:
-    # Decide how many rows we need
+    """
+    Plots stock data with selected technical indicators and trade signals. This function creates a Plotly figure with subplots for stock prices and selected technical indicators.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing stock data with necessary columns.
+        stock_name (str): Name of the stock for the chart title.
+        type_of_chart (str): Type of chart to display ("LineChart" or "Candlestick").
+        indicators (list, optional): List of technical indicators to include. Defaults to None.
+        show_buy_signals (bool, optional): Whether to display buy signals. Defaults to False.
+        show_sell_signals (bool, optional): Whether to display sell signals. Defaults to False.
+        show_upward_trends (bool, optional): Whether to highlight upward trends. Defaults to False.
+        show_downward_trends (bool, optional): Whether to highlight downward trends. Defaults to False.
+
+    Returns:
+        go.Figure: Plotly figure object with the visualizations.
+    
+    Notes:
+        - The function dynamically creates subplots based on selected indicators.
+        - The function supports both line and candlestick charts for stock prices.
+        - The function uses Plotly's built-in features for interactivity.
+        - Buy and sell signals are marked with distinct markers on the price chart.
+        - Upward and downward trends can be highlighted with shaded regions. ( currently commented out and under development)
+        
+    """
     
     
     if indicators is None:

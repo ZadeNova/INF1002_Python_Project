@@ -1,4 +1,16 @@
-# config.py
+"""
+config.py
+
+Purpose:
+    This config file contains constants and configuration settings
+    used across the stock analysis and visualization modules.
+
+Notes:
+    This file contains settings such as the select fields for technical indicators,
+    the list of stock tickers to track, and default date ranges for data fetching.
+"""
+
+
 
 
 # TA Select FIELDS

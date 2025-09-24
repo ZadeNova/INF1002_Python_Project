@@ -1,3 +1,22 @@
+
+"""
+app.py
+
+Purpose:
+    This module is the main Streamlit application for visualizing stock data
+    and technical indicators. It allows users to upload CSV files or enter stock and the stock data will be fetched using yfinance API.
+    It also provides options to select date ranges, technical indicators, and display trade signals and trend highlights.
+    The app uses plotly for interactive visualizations and a chart will be displayed based on user selections.
+
+Functions:
+    - None (main application script)
+Notes:
+    Each function modifies the input DataFrame in-place by adding new columns
+    with the calculated indicator values.
+"""
+
+
+
 import streamlit as st
 import pandas as pd
 import yfinance as yf
@@ -5,7 +24,7 @@ from src.visualization import plot_visualization
 from src.technical_indicators import *
 from src.analytics import *
 from src.config import *
-from src.utils import *
+from src.helper import *
 
 
 # Set up Streamlit app

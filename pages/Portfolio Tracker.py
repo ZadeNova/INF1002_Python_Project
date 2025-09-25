@@ -2,8 +2,10 @@ import json
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import List, Dict, Any
-from src.analytics import calculate_daily_returns
+from src.analytics import calculate_daily_returns, calculate_networth
 import os
+import yfinance as yf
+import numpy as np
 
 import pandas as pd
 import streamlit as st
@@ -26,8 +28,8 @@ This tool helps you calculate your net worth by inputting your stock holdings. S
 @dataclass
 class StockHoldings:
     ticker: str
-    quantity: float
     price_per_share: float
+    quantity: float
 
     def total_value(self) -> float:
         return self.quantity * self.price_per_share
@@ -128,13 +130,10 @@ if portfolio_name:
             elif buy_price <= 0 or amount <= 0:
                 st.warning("Buy price and share quantity must be greater than zero.")
             else:
-                
                 new_holding = StockHoldings(ticker=ticker, price_per_share=buy_price, quantity=amount)
-                #print(new_holding)
-                #user_portfolio.append(asdict#(new_holding))
-                
                 save_portfolio(portfolio_name, new_stock_holding=new_holding)
                 st.success(f"Added {amount} shares(s) of {ticker} @ ${buy_price:.2f} to your portfolio.")
+                st.cache_data.clear()
                 st.session_state[f'portfolio_{portfolio_name}'] = load_portfolio(portfolio_name)
                 #Rerun to update this page
                 st.rerun()
@@ -150,11 +149,46 @@ if portfolio_name:
     if st.button("Save Changes"):
         # Convert back to list of dicts
         updated_stock_portfolio = edited_stock_dataframe.to_dict('records')
-        #print(updated_stock_portfolio)
         # Save to JSON file
         st.session_state[f'portfolio_{portfolio_name}'] = updated_stock_portfolio  # Update session state
         with open(USER_DATA_DIR / f"portfolio_{portfolio_name}.json", 'w', encoding='utf-8') as file:
             json.dump(updated_stock_portfolio, file)
+        st.rerun()
+
+
+#Calculate and display net worth for every stock holding with def calculate_networth
+    st.sidebar.header("Net Worth Summary")
+    if not stock_dataframe.empty:
+        net_worth_data = calculate_networth(stock_dataframe)
+        if net_worth_data:
+            net_worth_table = net_worth_data.get("table")
+            total_invested = float(net_worth_data.get("total_invested", 0.0))
+            total_current_value = float(net_worth_data.get("total_current_value", 0.0))
+            profit_loss = float(net_worth_data.get("profit_loss", 0.0))
+            profit_loss_pct = float(net_worth_data.get("profit_loss_pct", 0.0))
+
+            if net_worth_table is not None and not net_worth_table.empty:
+
+                df = net_worth_table.copy()
+                if "profit_loss" not in df.columns:
+                    df["profit_loss"] = df["current_value"] - df["invested_value"]
+                if "profit_loss_pct" not in df.columns:
+                    df["profit_loss_pct"] = np.where(df["invested_value"] > 0, df["profit_loss"] / df["invested_value"] * 100.0,np.nan)
+
+            # Display summary metrics
+            st.sidebar.metric("Total Invested", format_currency(total_invested))
+            st.sidebar.metric("Current Value", format_currency(total_current_value))
+            if profit_loss >= 0:
+                st.sidebar.metric("Profit/Loss", format_currency(profit_loss), delta=f"{profit_loss_pct:.2f}%")
+            else:
+                st.sidebar.metric("Profit/Loss", format_currency(profit_loss), delta=f"{profit_loss_pct:.2f}%")
+
+        else:
+            st.sidebar.write("Could not calculate net worth. Please check your portfolio data.")
+    else:
+        st.sidebar.write("Portfolio is empty. Add stocks to see net worth calculation.")
+
+
 
 #Daily returns UI on sidebar (api data to get current stock price and calculate daily returns)
     st.sidebar.header("Daily Returns")

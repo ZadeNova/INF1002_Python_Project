@@ -198,8 +198,68 @@ def max_profit_calculation(df: pd.DataFrame) -> tuple[pd.DataFrame, float, int]:
     
     return df, profit , df["Buy_Signal"].sum()
 
+#Calculate and display net worth for every stock holding and comparing to close stock price
+def calculate_networth(stock_dataframe: pd.DataFrame):
+    if stock_dataframe.empty:
+        return {
+            "table": stock_dataframe.copy(),
+            "total_invested": 0.0,
+            "total_current_value": 0.0,
+            "profit_loss": 0.0,
+            "profit_loss_pct": 0.0,
+        }
     
+    net_worth = stock_dataframe.copy()
+    required = {"ticker", "price_per_share", "quantity"}
+    missing = required - set(net_worth.columns)
+    if missing:
+        raise ValueError(f"Missing columns in stock_dataframe: {missing}")
+    
+    #Ensure types
+    net_worth["ticker"] = net_worth["ticker"].astype(str).str.upper()
+    net_worth["price_per_share"] = pd.to_numeric(net_worth["price_per_share"], errors="coerce")
+    net_worth["quantity"] = pd.to_numeric(net_worth["quantity"], errors="coerce").fillna(0)
 
+    #Total invested (what the user paid)
+    net_worth["invested_value"] = net_worth["price_per_share"] * net_worth["quantity"]
+    total_invested = float(net_worth["invested_value"].sum())
+
+    #Pull latest close for each ticker
+    tickers = net_worth["ticker"].tolist()
+    d = date(2025, 9, 22) 
+    api_data = yf.download(tickers, start=d, interval="1d", group_by='ticker', threads=True)
+
+    current_prices = {}
+    #Handle single ticker vs multi ticker
+    if isinstance(api_data.columns, pd.MultiIndex):
+        for t in tickers:
+            try:
+                current_prices[t] = float(api_data[t]["Close"].iloc[-1])
+            except Exception:
+                current_prices[t] = None
+    else:
+        #Single ticker
+        try:
+            current_price = float(api_data["Close"].iloc[-1])
+        except Exception:
+            current_price = None
+        for t in tickers:
+            current_prices[t] = current_price
+
+    net_worth["current_price"] = net_worth["ticker"].map(current_prices)
+    net_worth["current_value"] = net_worth["current_price"] * net_worth["quantity"]
+
+    total_current_value = float(net_worth["current_value"].sum(skipna=True))
+    profit_loss_total = total_current_value - total_invested
+    profit_loss_pct_total = (profit_loss_total / total_invested * 100.0) if total_invested else 0.0
+
+    return {
+        "table": net_worth,
+        "total_invested": total_invested,
+        "total_current_value": total_current_value,
+        "profit_loss": profit_loss_total,
+        "profit_loss_pct": profit_loss_pct_total,
+    }
 
 def calculate_daily_returns(stock_dataframe: pd.DataFrame) -> dict:
     if not stock_dataframe.empty:
@@ -208,39 +268,26 @@ def calculate_daily_returns(stock_dataframe: pd.DataFrame) -> dict:
         d = date(2025, 9, 22) 
         #api_data = yf.download(tickers, start = "2025-09-22", end = "2025-09-22" ,interval="1d", group_by='ticker', threads=True)
         api_data = yf.download(tickers, start=d, interval="1d", group_by='ticker', threads=True)
-        print(api_data)
         daily_returns = {}
         for ticker in tickers:
             try:
-                if len(tickers) == 1:
-                    close_prices = api_data['Close']
+                #Handle single vs multi-ticker frame
+                if isinstance(api_data.columns, pd.MultiIndex):
+                    close = api_data[ticker]["Close"]
                 else:
-                    close_prices = api_data[ticker]['Close']
-                if len(close_prices) >= 2:
-                    latest_close = close_prices[-1]
-                    previous_close = close_prices[-2]
-                    value = latest_close
-                    print(value)
-                    print(previous_close)
-                    daily_return = (latest_close - previous_close) / previous_close *100
-                    daily_returns[ticker] = {'daily_return': daily_return, 'value': value}
-                else:
-                    daily_returns[ticker] = {'daily_return': None, 'value': None}
+                    close = api_data["Close"]
+
+                close = close.dropna()
+                if len(close) < 2:
+                    daily_returns[ticker] = {"daily_return": None, "value": None}
+                    continue
+
+                latest_close   = close.iloc[-1]
+                previous_close = close.iloc[-2]
+
+                daily_return = (latest_close - previous_close) / previous_close * 100
+                daily_returns[ticker] = {"daily_return": float(daily_return), "value": float(latest_close)}
             except Exception as e:
-                daily_returns[ticker] = {'daily_return': None, 'value': None}
-                print(f"Error fetching data for {ticker}: {e}")
-        return daily_returns
-    pass
-
-#calculate_upward_and_Downward_runs(df)
-#print(len(up_trend_list))
-#print(len(up_trend_dates))
-#print(len(down_trend_list))
-#print(len(down_trend_dates))
-
-
-#testing max profit calculation
-#current_dir = os.getcwd()
-#file_path = os.path.join(current_dir,"src","CSV","AAPL.csv")
-#df2 = pd.read_csv(file_path)
-#max_profit= max_profit_calculation(df2)
+                print(f"[calculate_daily_returns] {ticker}: {e!r}")
+                daily_returns[ticker] = {"daily_return": None, "value": None}
+    return daily_returns

@@ -21,6 +21,7 @@ import plotly.express as px
 
 #Technical Indicator Functions
 from src.technical_indicators import *
+from src.validation import *
 from src.config import *
 
 def get_subplot_titles(indicators):

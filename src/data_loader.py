@@ -20,7 +20,7 @@ import yfinance as yf
 import pandas as pd
 from datetime import datetime, timedelta
 import os
-import config
+from src.config import *
 
 # -----------------------------
 # Relative path to CSV folder
@@ -31,7 +31,7 @@ os.makedirs(DATA_DIR, exist_ok=True)
 # -----------------------------
 # Fetch historical data
 # -----------------------------
-def fetch_stock_data(ticker: str, start =config.START_DATE, end=config.END_DATE, save: bool=True):
+def fetch_stock_data(ticker: str, start =START_DATE, end=END_DATE, save: bool=True):
     """
     Fetch stock data from Yahoo Finance and incrementally update the CSV.
     """

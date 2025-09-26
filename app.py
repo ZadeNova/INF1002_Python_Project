@@ -21,6 +21,7 @@ import streamlit as st
 import pandas as pd
 import yfinance as yf
 from src.visualization import plot_visualization
+from src.validation import *
 from src.technical_indicators import *
 from src.analytics import *
 from src.config import *

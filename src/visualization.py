@@ -145,7 +145,7 @@ def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicat
             fig.add_trace(
             go.Scatter(
             x=df['Date'],
-            y=df['EMA12'],
+            y=df['EMA_12'],
             mode="lines",
             name="EMA",
             line=dict(color="blue", width=2)
@@ -156,7 +156,7 @@ def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicat
             fig.add_trace(
             go.Scatter(
             x=df['Date'],
-            y=df['EMA26'],
+            y=df['EMA_26'],
             mode="lines",
             name="EMA",
             line=dict(color="yellow", width=2)

@@ -85,7 +85,7 @@ def validate_SMA_results(df: pd.DataFrame, user_window: int) -> pd.DataFrame:
             pass
     if test_case:
         print("All test cases passed!")
-        return df
+        return df.replace(0, np.nan)
 
 def validate_MACD_results(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -137,7 +137,7 @@ def validate_MACD_results(df: pd.DataFrame) -> pd.DataFrame:
         
     if test_case:
         print("All test cases passed!")
-        return df
+        return df.replace(0, np.nan)
 
 def validate_EMA_results(df: pd.DataFrame, user_window: int) -> pd.DataFrame:  
     """
@@ -180,7 +180,7 @@ def validate_EMA_results(df: pd.DataFrame, user_window: int) -> pd.DataFrame:
             pass
     if test_case:
         print("All test cases passed!")
-        return df
+        return df.replace(0, np.nan)
     
 def validate_rsi_against_library(historical_stock_data: pd.DataFrame, window: int) -> pd.DataFrame:
     """
@@ -211,7 +211,7 @@ def validate_rsi_against_library(historical_stock_data: pd.DataFrame, window: in
     print(manually_calculated_RSI)
     if compare_talab_and_manual:
         print("RSI Validation passed!")
-        return df
+        return df.replace(0, np.nan)
     else:
         print("RSI Validation failed")
         return None

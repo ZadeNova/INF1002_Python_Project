@@ -32,7 +32,7 @@ from src.config import *
 
 
 
-def calculate_RSI(df: pd.DataFrame, time_period: int) -> pd.DataFrame:
+def calculate_RSI(df: pd.DataFrame, window: int) -> pd.DataFrame:
 
     """
     This function calculates the Relative Strength Index (RSI) for the given DataFrame. The DataFrame is modified in-place to include a new column 'RSI'.
@@ -75,15 +75,15 @@ def calculate_RSI(df: pd.DataFrame, time_period: int) -> pd.DataFrame:
     avg_gains = [None] * len(gains)
     avg_losses = [None] * len(losses)
     
-    first_avg_gain = sum(gains[:time_period]) / time_period
-    first_avg_loss = sum(losses[:time_period]) / time_period
-    avg_gains[time_period-1] = first_avg_gain
-    avg_losses[time_period-1] = first_avg_loss  
+    first_avg_gain = sum(gains[:window]) / window
+    first_avg_loss = sum(losses[:window]) / window
+    avg_gains[window-1] = first_avg_gain
+    avg_losses[window-1] = first_avg_loss  
     
     
-    for i in range(time_period, len(gains)):
-        avg_gains[i] = ((avg_gains[i-1] * (time_period - 1)) + gains[i]) / time_period
-        avg_losses[i] = ((avg_losses[i-1] * (time_period - 1)) + losses[i]) / time_period
+    for i in range(window, len(gains)):
+        avg_gains[i] = ((avg_gains[i-1] * (window - 1)) + gains[i]) / window
+        avg_losses[i] = ((avg_losses[i-1] * (window - 1)) + losses[i]) / window
     
     
     rsi_values = [None] * (len(closes))
@@ -105,7 +105,7 @@ def calculate_RSI(df: pd.DataFrame, time_period: int) -> pd.DataFrame:
 
 
 
-def calculate_EMA(df: pd.DataFrame, period, column: str="Close", ema_col: str=None) -> pd.DataFrame:
+def calculate_EMA(df: pd.DataFrame, window, column: str="Close", ema_col: str=None) -> pd.DataFrame:
     
     """
     This function calculates the Exponential Moving Average (EMA) for the given DataFrame. The DataFrame is modified in-place to include a new column for the EMA values.
@@ -125,7 +125,7 @@ def calculate_EMA(df: pd.DataFrame, period, column: str="Close", ema_col: str=No
     """
     
     if ema_col is None:
-        ema_col = f"EMA{period}"
+        ema_col = f"EMA_{window}"
     
     # Ensure numeric values
     df[column] = pd.to_numeric(df[column], errors="coerce")
@@ -133,13 +133,13 @@ def calculate_EMA(df: pd.DataFrame, period, column: str="Close", ema_col: str=No
     prices = df[column].tolist()
     ema_values = [None] * len(prices)
     
-    # Step 1: first EMA = average of first 'period' prices
-    first_ema = sum(prices[:period]) / period
-    ema_values[period-1] = first_ema
+    # Step 1: first EMA = average of first 'window' prices
+    first_ema = sum(prices[:window]) / window
+    ema_values[window-1] = first_ema
     
     # Step 2: loop for remaining prices
-    k = 2 / (period + 1)
-    for i in range(period, len(prices)):
+    k = 2 / (window + 1)
+    for i in range(window, len(prices)):
         prev_ema = ema_values[i-1]
         price = prices[i]
         ema_values[i] = (price - prev_ema) * k + prev_ema
@@ -148,13 +148,13 @@ def calculate_EMA(df: pd.DataFrame, period, column: str="Close", ema_col: str=No
     df[ema_col] = ema_values
     
     # When saving, round to 2 decimals for cleaner CSV
-    df[ema_col] = df[ema_col].round(2)
+    df[ema_col] = df[ema_col]
     
     return df
 
 
 
-def calculate_SMA(df: pd.DataFrame, user_window: int) -> pd.DataFrame:
+def calculate_SMA(df: pd.DataFrame, window: int) -> pd.DataFrame:
     
     """
     This function calculates the Simple Moving Average (SMA) for the given DataFrame. The DataFrame is modified in-place to include a new column 'SMA_{user_window}'.
@@ -185,14 +185,14 @@ def calculate_SMA(df: pd.DataFrame, user_window: int) -> pd.DataFrame:
     #    
     
     for i in range(len(df)):
-        if i + 1 < user_window:
+        if i + 1 < window:
             avg_prices.append(None)
         else:
-            window_average = (df['Close'].iloc[i+1-user_window: i+1]).sum() / user_window
+            window_average = (df['Close'].iloc[i+1-window: i+1]).sum() / window
             #print(window_average,'testing22334')
             avg_prices.append(window_average)
     
-    column_name = f"SMA_{user_window}"
+    column_name = f"SMA_{window}"
     df[column_name] = avg_prices
     print(df)
     print('testing123')
@@ -302,6 +302,180 @@ def apply_selected_technical_indicators(df: pd.DataFrame, selected_indicators: l
     #print(df_with_indicators[:10:50])
     return df_with_indicators
         
+'''
+    Validation Functions
+'''
+
+#Data Validation for SMA (Comparing our SMA function with talib SMA function)
+def validate_SMA_results(df: pd.DataFrame, window: int) -> pd.DataFrame:    
+    """
+    This function validates the Simple Moving Average (SMA) calculation
+    by comparing the results from a custom implementation with those from the TA-Lib library.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing stock data with necessary columns.
+        period (int): The window size for calculating the SMA.
+
+    Returns:
+        pd.DataFrame: DataFrame with both custom and TA-Lib SMA columns for comparison.
+    
+    Notes:
+        - The function assumes that the input DataFrame contains a 'Close' column.
+        - It fills NaN values with 0 for comparison purposes.
+        - Discrepancies between the two methods are printed to the console.
+        
+    """
+
+    test_case = True
+    
+    #gets the SMA calcuted from our function
+    df = calculate_SMA(df, window)
+
+    #gets the SMA calculated from talib function
+    df[f"SMA_{window}_talib"]= talib.SMA(df['Close'], timeperiod=window)
+
+    df = df.fillna(0)
+
+    #Compares each row from both methods for discrepancies
+    for i in range(0, len(df[f"SMA_{window}"])):
+        #compares the values from both methods
+        if df[f"SMA_{window}"].iloc[i] != df[f"SMA_{window}_talib"].iloc[i]:
+            print(f"SMA discrepancy at index {i}: calculated {df[f"SMA_{window}"].iloc[i]}, pandas {df[f"SMA_{window}_talib"].iloc[i]}")
+            test_case = False
+            return None
+        else:
+            pass
+    if test_case:
+        print("All test cases passed!")
+        return df.replace(0, np.nan)
+
+def validate_MACD_results(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    This function validates the Moving Average Convergence Divergence (MACD) calculation
+    by comparing the results from a custom implementation with those from the TA-Lib library.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing stock data with necessary columns.
+        
+
+    Returns:
+        pd.DataFrame: DataFrame with both custom and TA-Lib MACD columns for comparison.
+    
+    Notes:
+        - The function assumes that the input DataFrame contains a 'Close' column.
+        - It fills NaN values with 0 for comparison purposes.
+        - Discrepancies between the two methods are printed to the console.
+        
+    """
+
+    test_case = True
+
+    #gets MACD calculated from own function
+    df = calculate_MACD(df)
+
+    #calculate MACD using ta-lib
+    df['MACD_talib'], df['MACD_signal_talib'], df['MACD_hist_talib'] = talib.MACD(df['Close'], 
+                                                         fastperiod=12, 
+                                                         slowperiod=26, 
+                                                         signalperiod=9)
+    df = df.fillna(0) #replace all NaN values with 0
+    print(df.iloc[33])
+    
+    for i in range (0, len(df['MACD'])):
+        if df['MACD'].iloc[i] != df['MACD_talib'].iloc[i] and df['MACD'].iloc[i] == 0:
+            print(f"MACD Discrepancy at index {i}: calculated {df['MACD'].iloc[i]}, talib {df['MACD_talib'].iloc[i]}")
+            test_case = False
+            return None
+        else:
+            if df['Signal_Line'].iloc[i] != df['MACD_signal_talib'].iloc[i]:
+                print(f"Signal Line Discrepancy at index {i}: calculated {df['Signal_Line'].iloc[i]}, talib {df['MACD_signal_talib'].iloc[i]}")
+                test_case = False
+                return None
+            else:
+                if df['MACD_Histogram'].iloc[i] != df['MACD_hist_talib'].iloc[i]:
+                    print(f"Histogram Discrepancy at index {i}: calculated {df['MACD_Histogram'].iloc[i]}, talib {df['MACD_hist_talib'].iloc[i]}")
+                    test_case = False
+                    return None
+        
+    if test_case:
+        print("All test cases passed!")
+        return df.replace(0, np.nan)
+
+def validate_EMA_results(df: pd.DataFrame, window: int) -> pd.DataFrame:  
+    """
+    This function validates the Exponential Moving Average (EMA) calculation
+    by comparing the results from a custom implementation with those from the TA-Lib library.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing stock data with necessary columns.
+        user_window (int): The window size for calculating the EMA.
+
+    Returns:
+        pd.DataFrame: DataFrame with both custom and TA-Lib EMA columns for comparison.
+    
+    Notes:
+        - The function assumes that the input DataFrame contains a 'Close' column.
+        - It fills NaN values with 0 for comparison purposes.
+        - Discrepancies between the two methods are printed to the console.
+        
+    """
+
+    test_case = True
+
+    #gets EMA calculated from our function
+    calculate_EMA(df, window)
+
+    #gets EMA calculated using talib
+    df[f'EMA_{window}_talib'] = talib.EMA(df['Close'], timeperiod=window)
+
+    #replace NaN values with 0
+    df = df.fillna(0)
+    #Compares each row from both methods for discrepancies
+    for i in range(0, len(df[f'EMA_{window}'])):
+        #compares the values from both methods
+        if df[f'EMA_{window}'].iloc[i] != df[f'EMA_{window}_talib'].iloc[i]:
+            print(f"EMA discrepancy at index {i}: calculated {df[f'EMA_{window}'].iloc[i]}, pandas {df[f'EMA_{window}_talib'].iloc[i]}")
+            test_case = False
+            return None
+        else:
+            pass
+    if test_case:
+        print("All test cases passed!")
+        return df.replace(0, np.nan)
+    
+def validate_rsi_against_library(historical_stock_data: pd.DataFrame, window: int) -> pd.DataFrame:
+    """
+    This function validates the Relative Strength Index (RSI) calculation
+    by comparing the results from a custom implementation with those from the TA-Lib library.
+
+    Args:
+        historical_stock_data (pd.DataFrame): DataFrame containing stock data with necessary columns.
+        window (int): The window size for calculating the RSI.
+    
+    Returns:
+        pd.DataFrame: DataFrame with both custom and TA-Lib RSI columns for comparison.
+    
+    Notes:
+        - The function assumes that the input DataFrame contains a 'Close' column.
+        - It fills NaN values with 0 for comparison purposes.
+        - Discrepancies between the two methods are printed to the console.
+        
+    """
+    print('Running RSI Validation')
+    talab_library_calculated_RSI = talib.RSI(historical_stock_data['Close'],timeperiod=window)
+    df = calculate_RSI(historical_stock_data,window)
+    
+    
+    compare_talab_and_manual = np.allclose(talab_library_calculated_RSI, df['RSI'], rtol=1e-3, atol=1e-5,equal_nan=True)
+    
+    print(talab_library_calculated_RSI)
+    print(df)
+    if compare_talab_and_manual:
+        print("RSI Validation passed!")
+        return df.replace(0, np.nan)
+    else:
+        print("RSI Validation failed")
+        return None
 
 
 """
@@ -310,12 +484,12 @@ def apply_selected_technical_indicators(df: pd.DataFrame, selected_indicators: l
 """
 
 TECHNICAL_INDICATORS = {
-    SMA_20_LABEL: partial(calculate_SMA, user_window=20),
-    SMA_50_LABEL: partial(calculate_SMA, user_window=50),
-    SMA_200_LABEL: partial(calculate_SMA, user_window=200),
-    RSI_14_LABEL: partial(calculate_RSI, time_period=14),
+    SMA_20_LABEL: partial(validate_SMA_results, window=20),
+    SMA_50_LABEL: partial(validate_SMA_results, window=50),
+    SMA_200_LABEL: partial(validate_SMA_results, window=200),
+    RSI_14_LABEL: partial(validate_rsi_against_library, window=14),
     MACD: partial(calculate_MACD, short_period=12, long_period=26, signal_period=9, column="Close"),
     VWAP: partial(calculate_VWAP),
-    EMA12: partial(calculate_EMA, period = 12),
-    EMA26: partial(calculate_EMA, period = 26)
+    EMA12: partial(validate_EMA_results, window = 12),
+    EMA26: partial(validate_EMA_results, window = 26)
 }

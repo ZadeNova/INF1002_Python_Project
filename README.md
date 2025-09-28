@@ -113,11 +113,9 @@ pytest
 
 ## 📊 Example Output
 
-**Longest Downward Streak:**
-📉 7 days (From 2025-01-10 to 2025-01-16)
+**Longest Downward Streak and Upward Streak for GME:**
 
-*Streamlit dashboard screenshot (optional):*
-![Dashboard Screenshot](docs/screenshot.png)
+<img width="1913" height="961" alt="image" src="https://github.com/user-attachments/assets/db483fd9-59bd-40ac-89dc-9e40c949b31b" />
 
 ---
 

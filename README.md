@@ -1,115 +1,122 @@
-## 🚀 Getting Started (For Developers)
+# 📊 BullBearAnalysis
 
-Follow these steps to set up the development environment on your local machine.
+An app that is able to display technical indicators to identify stock trends and calculate portfolio networth using Streamlit.
+---
 
-### Prerequisites
 
-- Python 3.10 or higher
-- pip (Python package manager)
-- Git
+## 📈 Project Overview
 
-### Installation & Setup
+This system performs sophisticated technical analysis on historical stock data, implementing algorithms for trend identification, profitability analysis, and interactive visualization. Built with modular, production-ready code following software engineering best practices.
 
-1.  **Clone the Repository**
+## 🚀 Features
 
-    ```bash
-    git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
-    cd your-repo-name
-    ```
+* 📈 Detects and visualizes upward/downward streaks in stock prices
+* 🕒 Displays longest streaks with start and end dates
+* 📐 Display up to five technical indicators
+* 🔎 Filter historical stock data by date ranges.
+* 💹 Display buy/sell signals on the chart
+* ⚡ Powered by Streamlit for an interactive dashboard to display visualization
+* 💾 Data sourced from Yahoo Finance (Yfinance)
 
-2.  **Create and Activate a Virtual Environment**
+---
 
-    ```bash
-    # On macOS/Linux
-    python3 -m venv venv
-    source venv/bin/activate
+## 🏗️ Tech Stack
 
-    # On Windows (Command Prompt)
-    venv\Scripts\activate.bat
+* **Language:** Python 3.10+
+* **Frontend:** Streamlit
+* **Backend/Data libraries:** Pandas, NumPy, yfinance
+* **Version Control:** Git/GitHub
 
-    # On Windows (PowerShell)
-    python -m venv venv
-    venv\Scripts\Activate.ps1
-    ```
+---
 
-    _You should see `(venv)` in your terminal prompt._
-
-3.  **Install Dependencies**
-    Install all required libraries from the `requirements.txt` file.
-
-    ```
-    pip install -r requirements.txt
-    ```
-
-4.  **Run the Application**
-    Launch the Streamlit app locally.
-    ```
-    streamlit run app.py
-    ```
-    The app will open in your default web browser at `http://localhost:8501`.
-
-## 📁 Project Structure
-
-## 🪵 GitHub Branch Workflow Guide: Avoiding Collisions
-
-To work together without overwriting each other's code, we **must** use a branching workflow. This guide explains how to do it.
-
-### **The Golden Rule: Never Push Directly to `main`**
-
-The `main` branch is our stable, working version. To keep it safe, we will all do our work in separate **feature branches** and then merge them via **Pull Requests (PRs)**.
-
-### **Standard Workflow For Adding a Feature**
-
-#### 1. Get the Latest Code
-
-_Always_ start from the latest `main` branch.
+## 📂 Project Structure
 
 ```
-git checkout main
-git pull origin main
+project-name/
+│── src/                  # Source code
+│   ├── main.py           # Main Streamlit app
+│   ├── utils.py          # Helper functions
+│   └── analysis.py       # Core financial logic
+│
+│── data/                 # Raw / sample data (if applicable)
+│── requirements.txt      # Python dependencies
+│── README.md             # Project documentation
+│── .gitignore            # Git ignore rules
 ```
 
-### 2. Create your Feature Branch
+---
 
-```
-# Create and switch to a new branch
-git checkout -b feature/your-feature-name
-```
+## ⚙️ Installation & Setup
 
-### 3. Do your Work
-
-Code your feature, write tests, and make sure it works. Commit your changes to your branch.
+### 1. Clone the repository
 
 ```bash
-# Stage your changes
-git add .
-
-# Commit with a clear message
-git commit -m "feat: add calculate_sma function with tests"
+git clone https://github.com/your-username/project-name.git
+cd project-name
 ```
 
-### 4. Push your feature to Github
+### 2. Create a virtual environment
 
-Upload your branch to the shared repository.
-
+```bash
+python -m venv venv
+source venv/bin/activate   # On Mac/Linux
+venv\Scripts\activate      # On Windows
 ```
-git push -u origin feature/your-feature-name
+
+### 3. Install dependencies
+
+```bash
+pip install -r requirements.txt
 ```
 
-### 5. Create a Pull Request
+### 4. Run the Streamlit app
 
-### 6. Update Your Local Machine
-
-Update your local repository with the latest code from the github repository
-After pull request is merged to main branch , get the latest main
-
+```bash
+streamlit run app.py
 ```
-# Switch back to main
-git checkout main
 
-# Delete the feature branch locally
-git branch -d feature/your-feature-name
+---
 
-# Pull the latest main (which now includes your merged code!)
-git pull origin main
+## 🧪 Validation & Testing
+
+🛠 WIP ( Work in Progress )
+
+To validate the results:
+
+* The program outputs streak detection results directly in the console.
+* Professors can re-run the analysis with sample data provided in `/data`.
+* Unit tests (if included) can be run with:
+
+```bash
+pytest
 ```
+
+---
+
+## 📊 Example Output
+
+**Longest Downward Streak:**
+📉 7 days (From 2025-01-10 to 2025-01-16)
+
+*Streamlit dashboard screenshot (optional):*
+![Dashboard Screenshot](docs/screenshot.png)
+
+---
+
+## 👨‍💻 Authors
+
+* **Your Name** – Developer & Researcher
+* **(Optional)** 
+
+---
+
+## 📚 References
+
+* [Streamlit Documentation](https://docs.streamlit.io/)
+* [yfinance Library](https://pypi.org/project/yfinance/)
+
+---
+
+## 📜 License
+
+This project is for **academic purposes only**.

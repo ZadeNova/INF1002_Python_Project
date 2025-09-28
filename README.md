@@ -32,16 +32,32 @@ This system performs sophisticated technical analysis on historical stock data, 
 ## 📂 Project Structure
 
 ```
-project-name/
-│── src/                  # Source code
-│   ├── main.py           # Main Streamlit app
-│   ├── utils.py          # Helper functions
-│   └── analysis.py       # Core financial logic
-│
-│── data/                 # Raw / sample data (if applicable)
-│── requirements.txt      # Python dependencies
-│── README.md             # Project documentation
-│── .gitignore            # Git ignore rules
+.
+├── data/  # Stores datasets and user portfolio data
+│   ├── CSV/ # Historical Stock data in CSV format
+│   └── user_data/ # User-specific data for portfolio_tracker.py
+│       └── portfolio_Test.json
+├── pages/ # Streamlit multi-page app scripts
+│   └── portfolio_tracker.py
+├── src/ # Core source Code
+│   ├── __init__.py 
+│   ├── analytics.py # Financial analytics functions to calculate certain metrics
+│   ├── config.py # Confgiruation settings
+│   ├── data_loader.py # Data fetching and preprocessing
+│   ├── helper.py # Utility/helper functions
+│   ├── run_loader.py # Script for bulk loading of data
+│   ├── technical_indicators.py # Technical analysis functions
+│   └── visualization.py # Plotting and charting functions
+├── tests/ # Unit tests
+│   ├── __init__.py
+│   ├── test_analytics.py
+│   └── test_data_loader.py
+├── validation/ # Validation scripts to compare technical indicator calculations
+│   └── validation.py
+├── .gitignore 
+├── README.md
+├── app.py # Main streamlit entry point.
+└── requirements.txt # Python dependencies
 ```
 
 ---

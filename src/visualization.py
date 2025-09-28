@@ -36,7 +36,7 @@ def get_subplot_titles(indicators):
     return titles
 
 # Plotting Function
-def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicators=None ,show_buy_signals=False, show_sell_signals=False, show_upward_trends=False, show_downward_trends=False) -> go.Figure:
+def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicators=None ,show_buy_signals=False, show_sell_signals=False, show_upward_and_downward_trends=False) -> go.Figure:
     """
     Plots stock data with selected technical indicators and trade signals. This function creates a Plotly figure with subplots for stock prices and selected technical indicators.
 
@@ -168,9 +168,7 @@ def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicat
              fig.add_trace(go.Scatter(x=df['Date'], y=df["VWAP"], mode="lines", name="VWAP"), row=1, col=1)
     
     
-    
-    
-    
+
     if show_buy_signals:
         
         fig.add_trace(
@@ -199,23 +197,6 @@ def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicat
         )
         
         
-        
-    streak_options = []
-    if show_upward_trends:
-        streak_options.append(("Up_Trend", "rgba(0, 0, 255, 0.3)"))
-
-    if show_downward_trends:
-        streak_options.append(("Down_Trend", "rgba(255, 0, 0, 0.3)"))
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
     #for streak_col, color in streak_options:
     #    in_streak = False

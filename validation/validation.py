@@ -20,49 +20,14 @@ Notes:
 
 import pandas as pd
 import numpy as np
-#from analytics import EMA, MACD, RSI, SMA, VWAP
-#from SMA import calculate_SMA
-from src.technical_indicators import calculate_SMA, calculate_VWAP, calculate_MACD, calculate_EMA, calculate_RSI
-#from data_loader import 
+from src.technical_indicators import *
 from src.data_loader import fetch_stock_data, fetch_latest_price
 from src.config import *
 #import ta-lib for accurate calculation
 import talib
-
 from functools import partial
-from src.config import *
 
-def apply_selected_technical_indicators(df: pd.DataFrame, selected_indicators: list) -> pd.DataFrame:
-    """
-    This function applies the selected technical indicators to the given DataFrame. The Dataframe is modified in-place to include new columns for each selected indicator.
 
-    Args:
-        df (pd.DataFrame): DataFrame containing stock data with necessary columns.
-        selected_indicators (list): List of technical indicators to apply. Each indicator should be a key in the TECHNICAL_INDICATORS dictionary.
-
-    Returns:
-        pd.DataFrame: The modified DataFrame with new columns for each selected technical indicator.
-    
-    Notes:
-        - The function uses a dictionary mapping indicator names to their corresponding functions. These is hardcoded in the TECHNICAL_INDICATORS dictionary. The dictionary uses functools.partial to pre-fill parameters for each indicator function.
-        - Each indicator function is called with the DataFrame and any required parameters.
-        - The function assumes that the input DataFrame has the necessary columns for the selected indicators.
-        
-    """
-    df_with_indicators = df
-    # Loop through the user's selection and apply the corresponding function
-    print(selected_indicators)
-    
-    for indicator_func in selected_indicators:
-        print(indicator_func)
-        indicator_function = TECHNICAL_INDICATORS[indicator_func]
-        
-        df_with_indicators = indicator_function(df_with_indicators)
-    
-    #print(type(df_with_indicators))
-    #print(df_with_indicators)
-    #print(df_with_indicators[:10:50])
-    return df_with_indicators
         
 '''
     Validation Functions
@@ -80,10 +45,12 @@ def validate_SMA_results(df: pd.DataFrame, window: int) -> pd.DataFrame:
 
     Returns:
         pd.DataFrame: DataFrame with both custom and TA-Lib SMA columns for comparison.
+        It also prints discrepancies to the console if any are found.
     
     Notes:
         - The function assumes that the input DataFrame contains a 'Close' column.
         - It fills NaN values with 0 for comparison purposes.
+        - It uses a for loop to compare each row in the dataframe from both methods (TA-Lib and custom implementation).
         - Discrepancies between the two methods are printed to the console.
         
     """
@@ -102,7 +69,7 @@ def validate_SMA_results(df: pd.DataFrame, window: int) -> pd.DataFrame:
     for i in range(0, len(df[f"SMA_{window}"])):
         #compares the values from both methods
         if df[f"SMA_{window}"].iloc[i] != df[f"SMA_{window}_talib"].iloc[i]:
-            print(f"SMA discrepancy at index {i}: calculated {df[f"SMA_{window}"].iloc[i]}, pandas {df[f"SMA_{window}_talib"].iloc[i]}")
+            print(f"SMA discrepancy at index {i}: calculated {df[f'SMA_{window}'].iloc[i]}, pandas {df[f'SMA_{window}_talib'].iloc[i]}")
             test_case = False
             return None
         else:
@@ -122,6 +89,7 @@ def validate_MACD_results(df: pd.DataFrame) -> pd.DataFrame:
 
     Returns:
         pd.DataFrame: DataFrame with both custom and TA-Lib MACD columns for comparison.
+        It also prints discrepancies to the console if any are found.
     
     Notes:
         - The function assumes that the input DataFrame contains a 'Close' column.
@@ -240,27 +208,31 @@ def validate_rsi_against_library(historical_stock_data: pd.DataFrame, window: in
         return None
 
 
+
+# Example usage
 """
-    The reason why we add a TECHNICAL_INDICATORS dictionary is to map user-friendly indicator names to their corresponding functions. This allows for dynamic selection and application of technical indicators based on user input or configuration settings. By using a dictionary, we can easily extend or modify the available indicators without changing the core logic of the application. The use of functools.partial allows us to pre-fill certain parameters for each indicator function, making it easier to call them with just the DataFrame as an argument.
+Run this validation.py file to validate the technical indicators calculations.
+The custom technical indicators will be compared against TA-Lib's calculations.
+The results will be printed to the console.
+Make sure to adjust the stock symbol , date range, and window size as needed.
+
+Additional Notes for next change:
+- Give professor the command to run this validation file
+- Display the data in a nicer way to the professor  ( might consider log file )
+- Command is python -m validation.validation.py
 
 """
+user_window = 14
+# Please ensure you have an active internet connection to fetch the stock data, also ensure that the ticker is valid.
+# Some examples of stock tickers: AAPL, MSFT, GOOGL, AMZN, TSLA, GME
+stock_ticker = "AAPL"
+# Date format is in YYYY-MM-DD
+start_date = "2024-01-01"
+end_date = "2025-09-01"
+df = fetch_stock_data(stock_ticker, start_date, end_date)
 
-TECHNICAL_INDICATORS = {
-    SMA_20_LABEL: partial(validate_SMA_results, window=20),
-    SMA_50_LABEL: partial(validate_SMA_results, window=50),
-    SMA_200_LABEL: partial(validate_SMA_results, window=200),
-    RSI_14_LABEL: partial(validate_rsi_against_library, window=14),
-    MACD: partial(calculate_MACD, short_period=12, long_period=26, signal_period=9, column="Close"),
-    VWAP: partial(calculate_VWAP),
-    EMA12: partial(validate_EMA_results, window = 12),
-    EMA26: partial(validate_EMA_results, window = 26)
-}
-
-
-    
-
-#validate_rsi_against_library(df, 14)
-#validate_EMA(df, user_window)
-#validate_SMA_results(df, user_window)
-#validate_MACD_results(df)
+validate_rsi_against_library(df, 14)
+validate_EMA_results(df, user_window)
+validate_SMA_results(df, user_window)
+validate_MACD_results(df)
 #df.to_csv("test.csv", index=False)

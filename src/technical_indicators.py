@@ -30,10 +30,37 @@ import talib
 from functools import partial
 from src.config import *
 
+def apply_selected_technical_indicators(df: pd.DataFrame, selected_indicators: list) -> pd.DataFrame:
+    """
+    This function applies the selected technical indicators to the given DataFrame. The Dataframe is modified in-place to include new columns for each selected indicator.
 
+    Args:
+        df (pd.DataFrame): DataFrame containing stock data with necessary columns.
+        selected_indicators (list): List of technical indicators to apply. Each indicator should be a key in the TECHNICAL_INDICATORS dictionary.
+
+    Returns:
+        pd.DataFrame: The modified DataFrame with new columns for each selected technical indicator.
+    
+    Notes:
+        - The function uses a dictionary mapping indicator names to their corresponding functions. These is hardcoded in the TECHNICAL_INDICATORS dictionary. The dictionary uses functools.partial to pre-fill parameters for each indicator function.
+        - Each indicator function is called with the DataFrame and any required parameters.
+        - The function assumes that the input DataFrame has the necessary columns for the selected indicators.
+        
+    """
+    df_with_indicators = df
+    # Loop through the user's selection and apply the corresponding function
+    print(selected_indicators)
+    
+    for indicator_func in selected_indicators:
+        print(indicator_func)
+        indicator_function = TECHNICAL_INDICATORS[indicator_func]
+        
+        df_with_indicators = indicator_function(df_with_indicators)
+    
+
+    return df_with_indicators
 
 def calculate_RSI(df: pd.DataFrame, window: int) -> pd.DataFrame:
-
     """
     This function calculates the Relative Strength Index (RSI) for the given DataFrame. The DataFrame is modified in-place to include a new column 'RSI'.
 
@@ -106,7 +133,6 @@ def calculate_RSI(df: pd.DataFrame, window: int) -> pd.DataFrame:
 
 
 def calculate_EMA(df: pd.DataFrame, window, column: str="Close", ema_col: str=None) -> pd.DataFrame:
-    
     """
     This function calculates the Exponential Moving Average (EMA) for the given DataFrame. The DataFrame is modified in-place to include a new column for the EMA values.
 
@@ -155,7 +181,6 @@ def calculate_EMA(df: pd.DataFrame, window, column: str="Close", ema_col: str=No
 
 
 def calculate_SMA(df: pd.DataFrame, window: int) -> pd.DataFrame:
-    
     """
     This function calculates the Simple Moving Average (SMA) for the given DataFrame. The DataFrame is modified in-place to include a new column 'SMA_{user_window}'.
 
@@ -268,3 +293,22 @@ def calculate_MACD(df: pd.DataFrame, short_period: int=12, long_period: int=26, 
     df["MACD_Histogram"] = df["MACD_Histogram"]
 
     return df
+
+
+
+
+"""
+    The reason why we add a TECHNICAL_INDICATORS dictionary is to map user-friendly indicator names to their corresponding functions. This allows for dynamic selection and application of technical indicators based on user input or configuration settings. By using a dictionary, we can easily extend or modify the available indicators without changing the core logic of the application. The use of functools.partial allows us to pre-fill certain parameters for each indicator function, making it easier to call them with just the DataFrame as an argument.
+
+"""
+
+TECHNICAL_INDICATORS = {
+    SMA_20_LABEL: partial(calculate_SMA, window=20),
+    SMA_50_LABEL: partial(calculate_SMA, window=50),
+    SMA_200_LABEL: partial(calculate_SMA, window=200),
+    RSI_14_LABEL: partial(calculate_RSI, window=14),
+    MACD: partial(calculate_MACD, short_period=12, long_period=26, signal_period=9, column="Close"),
+    VWAP: partial(calculate_VWAP),
+    EMA12: partial(calculate_EMA, window = 12),
+    EMA26: partial(calculate_EMA, window = 26)
+}

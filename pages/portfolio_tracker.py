@@ -1,3 +1,23 @@
+"""
+portfolio_tracker.py
+
+Purpose:
+    This module is the Portfolio Tracker page of the BullBearAnalysis Streamlit application.
+    It allows users to input their stock holdings and calculates the total value of their portfolio.
+
+Functions:
+    - None (main application script for the Portfolio Tracker page)
+Notes:
+    The module uses a dataclass to represent stock holdings and stores user data in JSON files.
+    The Json files are read and written to manage user portfolios.
+    
+    Discussion on JSON files and its scalability:
+        - Yes its true that JSON files are not scalable for large applications, but for the purpose of this project and simplicity, it is sufficient.
+        - The ideal would be to use a database like SQLite or PostgreSQL for better scalability and data management.
+"""
+
+
+
 import json
 from dataclasses import dataclass, asdict
 from pathlib import Path

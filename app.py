@@ -1,4 +1,3 @@
-
 """
 app.py
 
@@ -121,8 +120,8 @@ if data is not None and verify_data_format(data.reset_index()):
         )
     
     st.sidebar.subheader("Price Trend Highlights")
-    show_upward_trends = st.sidebar.checkbox("Show Upward Trends 📈", value=False)
-    show_downward_trends = st.sidebar.checkbox("Show Downward Trends 📉", value=False)
+    show_upward_and_downward_trends = st.sidebar.checkbox("Show Upward and Downward Trends 📈", value=False)
+
     
     st.sidebar.subheader("Trade Signals")
     show_buy_signals = st.sidebar.checkbox("Show Buy Signals 🟢", value=False)
@@ -138,22 +137,24 @@ if data is not None and verify_data_format(data.reset_index()):
     
     
     # Implement trade signals and trend highlights here
-    if show_upward_trends or show_downward_trends:
-        df_processed, longest_up_streak, longest_down_streak = calculate_upward_and_Downward_runs(df_processed)
-        
+    if show_upward_and_downward_trends:
+        df_processed, longest_up_streak, longest_down_streak = calculate_upward_and_Downward_runs(df_processed)  
         column_to_display_upward_streak , column_to_display_downward_streak = st.columns(2)
-        
+
+
         column_to_display_upward_streak.metric("📈 Longest Upward Streak", f"{longest_up_streak['length']}      days", f"From {longest_up_streak['start'].date()} to {longest_up_streak['end'].date()}", border=True)
         
-        column_to_display_downward_streak.metric("📉 Longest Downward Streak", f"{longest_down_streak       ['length']} days", f"From {longest_down_streak['start'].date()} to {longest_down_streak['end'].date()}  ", border=True)
+        column_to_display_downward_streak.metric("📉 Longest Downward Streak", f"{longest_down_streak       ['length']} days", f"From {longest_down_streak['start'].date()} to {longest_down_streak['end'].date()}  ", border=True,delta_color='inverse')
+
+
     
     if show_buy_signals or show_sell_signals:
         df_processed, max_profit, num_buys = max_profit_calculation(df_processed)
-        st.sidebar.write(f"Maximum Theoretical Profit (multiple transactions) (No transaction fee): ${max_profit:.2f}")
+
         
-        column_to_display_buy_and_sell = st.columns(1)[0]
+        column_to_display_buy_and_sell, column_to_display_max_profit = st.columns(2)
         column_to_display_buy_and_sell.metric("Total Buy and Sell Signals", f"{num_buys}      buys", "", border=True)
-        
+        column_to_display_max_profit.metric("Maximum Theoretical Profit (No transaction fees)", f"${max_profit:.2f}", border=True)
         
         
     print(df_processed.head(5))
@@ -162,7 +163,7 @@ if data is not None and verify_data_format(data.reset_index()):
     
     
     stock_name = api if api else "Uploaded Data"
-    fig = plot_visualization(df=df_processed, stock_name=stock_name, type_of_chart=type_of_chart_selected, indicators=selected_technical_indicators, show_buy_signals=show_buy_signals, show_sell_signals=show_sell_signals, show_upward_trends=show_upward_trends, show_downward_trends=show_downward_trends)
+    fig = plot_visualization(df=df_processed, stock_name=stock_name, type_of_chart=type_of_chart_selected, indicators=selected_technical_indicators, show_buy_signals=show_buy_signals, show_sell_signals=show_sell_signals, show_upward_and_downward_trends=show_upward_and_downward_trends)
     st.plotly_chart(fig, use_container_width=True)
 
     

@@ -12,7 +12,18 @@ Notes:
 
 
 
+"""
+# -----------------------------
+# Configuration Settings
+# -----------------------------
 
+For the TA selected fields, these are the technical indicators that can be applied to stock data. These variables are used as labels in the application. The variables exist in multiple files, so they are defined here to ensure consistency across the project.
+
+Files that the variables exist in:
+- src/technical_indicators.py
+- src/visualization.py 
+- app.py
+"""
 # TA Select FIELDS
 SMA_20_LABEL = "SMA 20 (Short Term)"
 SMA_50_LABEL = "SMA 50 (Medium Term)"

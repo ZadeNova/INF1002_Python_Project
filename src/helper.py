@@ -21,7 +21,6 @@ import streamlit as st
 
 
 def filter_dataframe_by_date_range(df: pd.DataFrame, start_date: pd.Timestamp, end_date: pd.Timestamp) -> pd.DataFrame:
-
     """
     This function filters a DataFrame to include only rows within a specified date range selected by the user.
 

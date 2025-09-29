@@ -33,33 +33,33 @@ This system performs sophisticated technical analysis on historical stock data, 
 
 ```
 .
-├── data/ → Stores datasets and user portfolio data
-│ ├── CSV/ → Cached/stored stock data in CSV format
-│ └── user_data/ → User-specific data (e.g., portfolio_Test.json)
+├── data/                        → Stores datasets and user portfolio data
+│ ├── CSV/                       → Cached/stored stock data in CSV format
+│ └── user_data/                 → User-specific data (e.g., portfolio_Test.json)
 │
-├── pages/ → Streamlit multi-page app scripts
+├── pages/                       → Streamlit multi-page app scripts
 │ └── portfolio_tracker.py
 │
 ├── src/ → Core source code
-│ ├── analytics.py → Financial analytics functions
-│ ├── config.py → Configuration settings
-│ ├── data_loader.py → Data fetching and preprocessing
-│ ├── helper.py → Utility/helper functions
-│ ├── run_loader.py → Script for bulk loading data
-│ ├── technical_indicators.py → Technical analysis functions
-│ └── visualization.py → Plotting and charting functions
+│ ├── analytics.py               → Financial analytics functions
+│ ├── config.py                  → Configuration settings
+│ ├── data_loader.py             → Data fetching and preprocessing
+│ ├── helper.py                  → Utility/helper functions
+│ ├── run_loader.py              → Script for bulk loading data
+│ ├── technical_indicators.py    → Technical analysis functions
+│ └── visualization.py           → Plotting and charting functions
 │
-├── tests/ → Unit tests
+├── tests/                       → Unit tests
 │ ├── test_analytics.py
 │ └── test_data_loader.py
 │
-├── validation/ → Validation scripts to compare calculations
+├── validation/                   → Validation scripts to compare calculations
 │ └── validation.py
 │
-├── app.py → Main Streamlit entry point
-├── requirements.txt → Python dependencies
-├── README.md → Project documentation
-└── .gitignore → Git ignore rules
+├── app.py                        → Main Streamlit entry point
+├── requirements.txt              → Python dependencies
+├── README.md                     → Project documentation
+└── .gitignore                    → Git ignore rules
 ```
 
 ---

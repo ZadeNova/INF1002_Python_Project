@@ -45,6 +45,22 @@ TECHNICAL_INDICATOR_OPTIONS = [
     EMA26
 ]
 
+# Period Select Fields
+PERIOD_SELECT_OPTIONS = [
+    "1d",    # Last 1 day
+    "5d",    # Last 5 days
+    "1mo",   # Last 1 month
+    "3mo",   # Last 3 months
+    "6mo",   # Last 6 months
+    "1y",    # Last 1 year
+    "2y",    # Last 2 years
+    "5y",    # Last 5 years
+    "10y",   # Last 10 years
+    "ytd",   # Year-to-date
+    "max"    # Maximum available history
+]
+
+
 # List of stocks you want to track
 TICKERS = [
     "AAPL",     # Apple

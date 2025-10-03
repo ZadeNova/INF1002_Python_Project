@@ -35,7 +35,15 @@ st.write("Welcome! To analyze stock data for bullish and bearish trends. You can
 uploaded_file = st.file_uploader("Upload a CSV file", type=["csv"])
 
 # Option to enter stock api
+period_option_for_data = st.selectbox(
+    "Period timeframe for Historical Data",
+    PERIOD_SELECT_OPTIONS,
+    index=5,
+    placeholder="Select a period from the select box",
+
+)
 api = st.text_input('Enter Stock Ticker (for yfinance API)', '')
+
 
 
 # Initialising data to hold csv file/api data
@@ -58,7 +66,11 @@ if uploaded_file is not None:
 elif api:
     # Fetch stock data using yfinance API if api is provided
     #data = yf.download(api, period="1y", interval="1d")
-    data = yf.Ticker(api).history(period="1y")
+    data = yf.Ticker(api).history(period=period_option_for_data)
+    # Clear session state date_range
+    st.session_state["date_range"] = ""
+
+    st.session_state["date_range"] = (data.index.min().date(), data.index.max().date())
     print('wait is this getting activated?')
     print(data)
     if data.empty:

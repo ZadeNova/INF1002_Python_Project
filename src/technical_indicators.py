@@ -81,6 +81,9 @@ def calculate_RSI(df: pd.DataFrame, window: int) -> pd.DataFrame:
         - The function uses the wilders smoothing method for calculating average gains and losses.
         
     """
+
+    if len(df) < window + 1:
+        raise ValueError(f"DataFrame must have at least {window + 1} rows to calculate RSI")
     
     closes = list(df["Close"])
     
@@ -149,6 +152,9 @@ def calculate_EMA(df: pd.DataFrame, window, column: str="Close", ema_col: str=No
         - The function assumes that the input DataFrame has the specified column.
         
     """
+
+    if len(df) < window:
+        raise ValueError(f"DataFrame must have at least {window} rows to calculate EMA")
     
     if ema_col is None:
         ema_col = f"EMA_{window}"
@@ -198,7 +204,14 @@ def calculate_SMA(df: pd.DataFrame, window: int) -> pd.DataFrame:
         - The function uses a sliding window approach to efficiently compute the SMA for each row.
         
     """
+
+    if 'Close' not in df.columns:
+        raise ValueError("DataFrame must contain 'Close' column")
     
+    if len(df) < window + 1:
+        raise ValueError(f"DataFrame must have at least {window + 1} rows to calculate SMA")
+
+
     avg_prices = []
 
     #starts from the last date
@@ -241,6 +254,13 @@ def calculate_VWAP(df: pd.DataFrame) -> pd.DataFrame:
         - The function uses cumulative sums to efficiently compute VWAP for each row.
         
     """
+    required_cols = ['High','Low','Close','Volume']
+    for col in required_cols:
+        if col not in df.columns:
+            raise ValueError(f"DataFrame must contain column '{col}'")
+
+
+
     #Calculate Volume Weighted Average Price (VWAP).
     price = (df['High'] + df['Low'] + df['Close']) / 3
     total_vol = df['Volume'].cumsum()

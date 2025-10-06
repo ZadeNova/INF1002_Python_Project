@@ -2,4 +2,4 @@
 /src/__pycache__
 /validation/__pycache__
 .DS_Store
-
+/tests/__pycache__

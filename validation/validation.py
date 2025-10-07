@@ -26,13 +26,15 @@ from src.config import *
 #import ta-lib for accurate calculation
 import talib
 from functools import partial
+#import tabulate for table format in terminal
+from tabulate import tabulate
 
 
         
 '''
     Validation Functions
 '''
-
+validation_results = []
 #Data Validation for SMA (Comparing our SMA function with talib SMA function)
 def validate_SMA_results(df: pd.DataFrame, window: int) -> pd.DataFrame:    
     """
@@ -54,8 +56,7 @@ def validate_SMA_results(df: pd.DataFrame, window: int) -> pd.DataFrame:
         - Discrepancies between the two methods are printed to the console.
         
     """
-
-    test_case = True
+    print("Running SMA Validation")
     
     #gets the SMA calcuted from our function
     df = calculate_SMA(df, window)
@@ -64,19 +65,17 @@ def validate_SMA_results(df: pd.DataFrame, window: int) -> pd.DataFrame:
     df[f"SMA_{window}_talib"]= talib.SMA(df['Close'], timeperiod=window)
 
     df = df.fillna(0)
-
     #Compares each row from both methods for discrepancies
     for i in range(0, len(df[f"SMA_{window}"])):
         #compares the values from both methods
-        if df[f"SMA_{window}"].iloc[i] != df[f"SMA_{window}_talib"].iloc[i]:
-            print(f"SMA discrepancy at index {i}: calculated {df[f'SMA_{window}'].iloc[i]}, pandas {df[f'SMA_{window}_talib'].iloc[i]}")
-            test_case = False
+        if df[f"SMA_{window}"].iloc[i] != df[f"SMA_{window}_talib"].iloc[i]: 
+        #if not np.isclose(df[f"SMA_{window}"].iloc[i],df[f"SMA_{window}_talib"].iloc[i]): #compared to the above, isclose() allows for tolerance (default up to 9dp)
+            validation_results.append(["SMA","❌ Failed",f"SMA discrepancy at index {i}: calculated {df[f'SMA_{window}'].iloc[i]}, talib {df[f'SMA_{window}_talib'].iloc[i]}"])
             return None
         else:
             pass
-    if test_case:
-        print("All test cases passed!")
-        return df.replace(0, np.nan)
+    validation_results.append(["SMA", "✅ Passed", "Calculated values tally with Talib Values"])
+    return df.replace(0, np.nan)
 
 def validate_MACD_results(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -97,8 +96,7 @@ def validate_MACD_results(df: pd.DataFrame) -> pd.DataFrame:
         - Discrepancies between the two methods are printed to the console.
         
     """
-
-    test_case = True
+    print("Running MACD Validation")
 
     #gets MACD calculated from own function
     df = calculate_MACD(df)
@@ -109,27 +107,22 @@ def validate_MACD_results(df: pd.DataFrame) -> pd.DataFrame:
                                                          slowperiod=26, 
                                                          signalperiod=9)
     df = df.fillna(0) #replace all NaN values with 0
-    print(df.iloc[33])
     
     for i in range (0, len(df['MACD'])):
-        if df['MACD'].iloc[i] != df['MACD_talib'].iloc[i] and df['MACD'].iloc[i] == 0:
-            print(f"MACD Discrepancy at index {i}: calculated {df['MACD'].iloc[i]}, talib {df['MACD_talib'].iloc[i]}")
-            test_case = False
+        if not np.isclose(df['MACD'].iloc[i],df['MACD_talib'].iloc[i]) and df['MACD'].iloc[i] == 0:
+            validation_results.append(["MACD","❌ Failed",f"MACD Discrepancy at index {i}: calculated {df['MACD'].iloc[i]}, talib {df['MACD_talib'].iloc[i]}"])
             return None
         else:
-            if df['Signal_Line'].iloc[i] != df['MACD_signal_talib'].iloc[i]:
-                print(f"Signal Line Discrepancy at index {i}: calculated {df['Signal_Line'].iloc[i]}, talib {df['MACD_signal_talib'].iloc[i]}")
-                test_case = False
+            if not np.isclose(df['Signal_Line'].iloc[i],df['MACD_signal_talib'].iloc[i]):
+                validation_results.append(["MACD","❌ Failed",f"MACD Signal Line Discrepancy at index {i}: calculated {df['Signal_Line'].iloc[i]}, talib {df['MACD_signal_talib'].iloc[i]}"])
                 return None
             else:
-                if df['MACD_Histogram'].iloc[i] != df['MACD_hist_talib'].iloc[i]:
-                    print(f"Histogram Discrepancy at index {i}: calculated {df['MACD_Histogram'].iloc[i]}, talib {df['MACD_hist_talib'].iloc[i]}")
-                    test_case = False
+                if not np.isclose(df['MACD_Histogram'].iloc[i],df['MACD_hist_talib'].iloc[i]):
+                    validation_results.append(["MACD","❌ Failed",f"MACD Histogram Discrepancy at index {i}: calculated {df['MACD_Histogram'].iloc[i]}, talib {df['MACD_hist_talib'].iloc[i]}"])
                     return None
         
-    if test_case:
-        print("All test cases passed!")
-        return df.replace(0, np.nan)
+    validation_results.append(["MACD", "✅ Passed", "Calculated values tally with Talib Values"])
+    return df.replace(0, np.nan)
 
 def validate_EMA_results(df: pd.DataFrame, window: int) -> pd.DataFrame:  
     """
@@ -149,8 +142,7 @@ def validate_EMA_results(df: pd.DataFrame, window: int) -> pd.DataFrame:
         - Discrepancies between the two methods are printed to the console.
         
     """
-
-    test_case = True
+    print("Running EMA Validation")
 
     #gets EMA calculated from our function
     calculate_EMA(df, window)
@@ -163,15 +155,13 @@ def validate_EMA_results(df: pd.DataFrame, window: int) -> pd.DataFrame:
     #Compares each row from both methods for discrepancies
     for i in range(0, len(df[f'EMA_{window}'])):
         #compares the values from both methods
-        if df[f'EMA_{window}'].iloc[i] != df[f'EMA_{window}_talib'].iloc[i]:
-            print(f"EMA discrepancy at index {i}: calculated {df[f'EMA_{window}'].iloc[i]}, pandas {df[f'EMA_{window}_talib'].iloc[i]}")
-            test_case = False
+        if not np.isclose(df[f'EMA_{window}'].iloc[i],df[f'EMA_{window}_talib'].iloc[i]):
+            validation_results.append(["EMA","❌ Failed",f"EMA discrepancy at index {i}: calculated {df[f'EMA_{window}'].iloc[i]}, talib {df[f'EMA_{window}_talib'].iloc[i]}"])
             return None
         else:
             pass
-    if test_case:
-        print("All test cases passed!")
-        return df.replace(0, np.nan)
+    validation_results.append(["EMA", "✅ Passed", "Calculated values tally with Talib Values"])
+    return df.replace(0, np.nan)
     
 def validate_rsi_against_library(historical_stock_data: pd.DataFrame, window: int) -> pd.DataFrame:
     """
@@ -191,22 +181,34 @@ def validate_rsi_against_library(historical_stock_data: pd.DataFrame, window: in
         - Discrepancies between the two methods are printed to the console.
         
     """
+
     print('Running RSI Validation')
-    talab_library_calculated_RSI = talib.RSI(historical_stock_data['Close'],timeperiod=window)
     df = calculate_RSI(historical_stock_data,window)
+    df["RSI_talib"] = talib.RSI(historical_stock_data['Close'],timeperiod=window)
+    df.fillna(0)
+    #compare_talab_and_manual = np.allclose(talab_library_calculated_RSI, df['RSI'], rtol=1e-3, atol=1e-5,equal_nan=True)
     
-    
-    compare_talab_and_manual = np.allclose(talab_library_calculated_RSI, df['RSI'], rtol=1e-3, atol=1e-5,equal_nan=True)
-    
-    print(talab_library_calculated_RSI)
-    print(df)
+    df = df.fillna(0)
+    #Compares each row from both methods for discrepancies
+    for i in range(0, len(df[f"SMA_{window}"])):
+        #compares the values from both methods
+        if not np.isclose(df[f"RSI"].iloc[i],df[f"RSI_talib"].iloc[i]): 
+            validation_results.append(["RSI","❌ Failed",f"SMA discrepancy at index {i}: calculated {df[f"RSI"].iloc[i]}, talib {df[f"RSI_talib"].iloc[i]}"])
+            return None
+        else:
+            pass
+    validation_results.append(["RSI", "✅ Passed", "Calculated values tally with Talib Values"])
+    return df.replace(0, np.nan)
+    #print(talab_library_calculated_RSI)
+    ##print(df)
+    '''
     if compare_talab_and_manual:
-        print("RSI Validation passed!")
+        validation_results.append(["RSI", "✅ Passed", "Calculated values tally with Talib Values"])
         return df.replace(0, np.nan)
     else:
-        print("RSI Validation failed")
+        validation_results.append(["RSI", "❌ Failed", "Calculated values tally with Talib Values"])
         return None
-
+    '''
 
 
 # Example usage
@@ -231,8 +233,9 @@ start_date = "2024-01-01"
 end_date = "2025-09-01"
 df = fetch_stock_data(stock_ticker, start_date, end_date)
 
-validate_rsi_against_library(df, 14)
-validate_EMA_results(df, user_window)
 validate_SMA_results(df, user_window)
+validate_EMA_results(df, user_window)
+validate_rsi_against_library(df, user_window)
 validate_MACD_results(df)
+print(tabulate(validation_results, headers=["Function", "Status", "Remarks"],tablefmt="double_grid"))
 #df.to_csv("test.csv", index=False)

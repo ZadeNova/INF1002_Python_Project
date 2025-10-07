@@ -119,11 +119,11 @@ def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicat
     
     for indicator in indicators:
         if indicator == SMA_20_LABEL:
-            fig.add_trace(go.Scatter(x=df['Date'], y=df['SMA_20'], mode='lines', line=dict(color='green', width=2), name="SMA 20"))
+            fig.add_trace(go.Scatter(x=df['Date'], y=df['SMA_20'], mode='lines', line=dict(color='goldenrod', width=2), name="SMA 20"))
         if indicator == SMA_50_LABEL:
-            fig.add_trace(go.Scatter(x=df['Date'], y=df['SMA_50'], mode='lines', line=dict(color='orange', width=2), name="SMA 50"))
+            fig.add_trace(go.Scatter(x=df['Date'], y=df['SMA_50'], mode='lines', line=dict(color='teal', width=2), name="SMA 50"))
         if indicator == SMA_200_LABEL:
-            fig.add_trace(go.Scatter(x=df['Date'], y=df['SMA_200'], mode='lines', line=dict(color='red', width=2), name="SMA 200"))
+            fig.add_trace(go.Scatter(x=df['Date'], y=df['SMA_200'], mode='lines', line=dict(color='dimgray', width=2), name="SMA 200"))
 
         if indicator == MACD:
             fig.add_trace(go.Scatter(x=df['Date'], y=df["MACD"], mode="lines", name="MACD"), row=2, col=1)
@@ -148,7 +148,7 @@ def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicat
             y=df['EMA_12'],
             mode="lines",
             name="EMA",
-            line=dict(color="blue", width=2)
+            line=dict(color="darkorange", width=2)
         ),
         row=1, col=1 )
             
@@ -159,13 +159,12 @@ def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicat
             y=df['EMA_26'],
             mode="lines",
             name="EMA",
-            line=dict(color="yellow", width=2)
+            line=dict(color="slateblue", width=2)
         ),
         row=1, col=1)
         
         if indicator == VWAP:
-             fig.add_trace(go.Scatter(x=df['Date'], y=df["VWAP"], mode="lines", name="VWAP"), row=1, col=1)
-    
+             fig.add_trace(go.Scatter(x=df['Date'],y=df['VWAP'],mode='lines',name = 'VWAP' , line = dict(color = "indigo", width=1.8)),row = 1, col = 1)
     
 
     if show_buy_signals:
@@ -175,7 +174,7 @@ def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicat
                 x=df.loc[df['Buy_Signal'], 'Date'],
                 y=df.loc[df['Buy_Signal'], 'Close'],
                 mode='markers',
-                marker=dict(symbol='triangle-up', color='green', size=10),
+                marker=dict(symbol='triangle-up', color='deepskyblue', size=10),
                 name='Buy Signal'
             ),
             row=1, col=1
@@ -189,7 +188,7 @@ def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicat
                 x=df.loc[df['Sell_Signal'], 'Date'],
                 y=df.loc[df['Sell_Signal'], 'Close'],
                 mode='markers',
-                marker=dict(symbol='triangle-down', color='red', size=10),
+                marker=dict(symbol='triangle-down', color='darkmagenta', size=10),
                 name='Sell Signal'
             ),
             row=1, col=1

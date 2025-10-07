@@ -17,7 +17,7 @@ COLORS = {
     'background': '#1E1E1E',   # Dark background
     'grid': '#2D2D2D',         # Grid lines
     'text': '#FFFFFF',         # White text
-    'price_line': '#00FF00',   # Gold price line
+    'price_line': '#00FF00',   # Bright green
     'sma_20': '#FF6B6B',       # Coral
     'sma_50': '#4ECDC4',       # Teal
     'sma_200': '#45B7D1',      # Light blue
@@ -26,14 +26,11 @@ COLORS = {
     'vwap': '#FFD700',         # Gold
     'macd': '#FFA500',         # Orange
     'signal': '#00BFFF',       # Deep sky blue
-    'rsi': '#FFA500',          # Hot pink
+    'rsi': '#FFA500',          # Orange
     'buy_signal': '#00FF00',   # Bright green
     'sell_signal': '#FF0000',  # Bright red
 }
 
-# Configuration, choosing which indicators go on separate subplots vs overlayed
-SEPARATE_SUBPLOT_INDICATORS = [MACD, RSI_14_LABEL]
-OVERLAY_INDICATORS = [SMA_20_LABEL, SMA_50_LABEL, SMA_200_LABEL, EMA12, EMA26, VWAP]
 
 def create_subplots(indicators):
     """

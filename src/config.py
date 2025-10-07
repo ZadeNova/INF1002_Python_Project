@@ -31,7 +31,7 @@ SMA_200_LABEL = "SMA 200 (Long Term)"
 VWAP = "VWAP"
 EMA12 = "EMA12"
 EMA26 = "EMA26"
-RSI_14_LABEL = "RSI 14"
+RSI_14_LABEL = "RSI"
 MACD = "MACD"
 
 TECHNICAL_INDICATOR_OPTIONS = [
@@ -75,3 +75,18 @@ TICKERS = [
 # Default start date for historical data
 START_DATE = "2024-01-01"
 END_DATE = "2026-01-01"
+
+# Choosing which indicators go on separate subplots vs overlayed
+SEPARATE_SUBPLOT_INDICATORS = [
+    MACD,
+    RSI_14_LABEL
+]
+
+OVERLAY_INDICATORS = [
+    SMA_20_LABEL,
+    SMA_50_LABEL,
+    SMA_200_LABEL,
+    EMA12,
+    EMA26,
+    VWAP
+]

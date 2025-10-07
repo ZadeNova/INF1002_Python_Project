@@ -31,11 +31,11 @@ COLORS = {
     'sell_signal': '#FF0000',  # Bright red
 }
 
-# Configuration
-SEPARATE_SUBPLOT_INDICATORS = [MACD, RSI_14_LABEL, SMA_20_LABEL, SMA_50_LABEL, SMA_200_LABEL]
-OVERLAY_INDICATORS = [EMA12, EMA26, VWAP]
+# Configuration, choosing which indicators go on separate subplots vs overlayed
+SEPARATE_SUBPLOT_INDICATORS = [MACD, RSI_14_LABEL]
+OVERLAY_INDICATORS = [SMA_20_LABEL, SMA_50_LABEL, SMA_200_LABEL, EMA12, EMA26, VWAP]
 
-def create_dynamic_subplots(indicators):
+def create_subplots(indicators):
     """
     Create optimized dynamic subplot configuration.
     """
@@ -46,7 +46,6 @@ def create_dynamic_subplots(indicators):
     separate_subplot_count = sum(1 for indicator in indicators if indicator in SEPARATE_SUBPLOT_INDICATORS)
     total_rows = 1 + separate_subplot_count
     
-    # Optimized height calculation
     if total_rows == 1:
         row_heights = [1.0]
     elif total_rows == 2:
@@ -56,7 +55,6 @@ def create_dynamic_subplots(indicators):
         indicator_height = (1.0 - price_height) / (total_rows - 1)
         row_heights = [price_height] + [indicator_height] * (total_rows - 1)
     
-    # Assign rows efficiently
     current_row = 2
     for indicator in indicators:
         if indicator in SEPARATE_SUBPLOT_INDICATORS:
@@ -132,7 +130,7 @@ def create_indicator_traces(df, indicators, indicator_positions):
                 go.Scatter(
                     x=df['Date'], y=df["RSI"], mode="lines", 
                     line=dict(color=COLORS['rsi'], width=1.5), 
-                    name="RSI", showlegend=False
+                    name="RSI 14", showlegend=False
                 ), row, 1
             ))
             
@@ -174,7 +172,7 @@ def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart: str,
         indicators = []
     
     # Create dynamic subplot configuration
-    num_rows, row_heights, subplot_titles, indicator_positions = create_dynamic_subplots(indicators)
+    num_rows, row_heights, subplot_titles, indicator_positions = create_subplots(indicators)
     
     # Create subplots with dark theme
     fig = make_subplots(

@@ -39,3 +39,4 @@ urllib3==2.5.0
 watchdog==6.0.0
 yfinance==0.2.40
 pytest==8.2.2
+TA-Lib

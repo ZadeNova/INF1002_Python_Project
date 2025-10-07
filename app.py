@@ -122,7 +122,7 @@ if data is not None and verify_data_format(data.reset_index()):
     
     st.sidebar.header("📊 Indicators")
     
-    indicators = []
+
     
     selected_technical_indicators = st.sidebar.multiselect(
         "Select your technical Indicators",

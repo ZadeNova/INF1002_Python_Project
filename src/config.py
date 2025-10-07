@@ -28,21 +28,21 @@ Files that the variables exist in:
 SMA_20_LABEL = "SMA 20 (Short Term)"
 SMA_50_LABEL = "SMA 50 (Medium Term)"
 SMA_200_LABEL = "SMA 200 (Long Term)"
-RSI_14_LABEL = "RSI 14"
 VWAP = "VWAP"
-MACD = "MACD"
 EMA12 = "EMA12"
 EMA26 = "EMA26"
+RSI_14_LABEL = "RSI 14"
+MACD = "MACD"
 
 TECHNICAL_INDICATOR_OPTIONS = [
     SMA_20_LABEL,
     SMA_50_LABEL,
     SMA_200_LABEL,
-    RSI_14_LABEL,
     VWAP,
-    MACD,
     EMA12,
-    EMA26
+    EMA26,
+    RSI_14_LABEL,
+    MACD
 ]
 
 # Period Select Fields

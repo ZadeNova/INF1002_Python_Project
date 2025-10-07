@@ -35,192 +35,127 @@ def get_subplot_titles(indicators):
     return titles
 
 # Plotting Function
-def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart ,indicators=None ,show_buy_signals=False, show_sell_signals=False, show_upward_and_downward_trends=False) -> go.Figure:
+
+def plot_visualization(df: pd.DataFrame, stock_name: str, type_of_chart, indicators=None,
+                       show_buy_signals=False, show_sell_signals=False,
+                       show_upward_and_downward_trends=False) -> go.Figure:
     """
-    Plots stock data with selected technical indicators and trade signals. This function creates a Plotly figure with subplots for stock prices and selected technical indicators.
+    Plots stock data with technical indicators and buy/sell signals.
 
     Args:
-        df (pd.DataFrame): DataFrame containing stock data with necessary columns.
-        stock_name (str): Name of the stock for the chart title.
-        type_of_chart (str): Type of chart to display ("LineChart" or "Candlestick").
-        indicators (list, optional): List of technical indicators to include. Defaults to None.
-        show_buy_signals (bool, optional): Whether to display buy signals. Defaults to False.
-        show_sell_signals (bool, optional): Whether to display sell signals. Defaults to False.
-        show_upward_trends (bool, optional): Whether to highlight upward trends. Defaults to False.
-        show_downward_trends (bool, optional): Whether to highlight downward trends. Defaults to False.
+        df (pd.DataFrame): DataFrame with stock data.
+        stock_name (str): Name of the stock.
+        type_of_chart (str): "LineChart" or "Candlestick".
+        indicators (list, optional): List of indicators to plot.
+        show_buy_signals (bool, optional): Show buy signals on chart.
+        show_sell_signals (bool, optional): Show sell signals on chart.
 
     Returns:
-        go.Figure: Plotly figure object with the visualizations.
-    
-    Notes:
-        - The function dynamically creates subplots based on selected indicators.
-        - The function supports both line and candlestick charts for stock prices.
-        - The function uses Plotly's built-in features for interactivity.
-        - Buy and sell signals are marked with distinct markers on the price chart.
-        - Upward and downward trends can be highlighted with shaded regions. ( currently commented out and under development)
-        
+        go.Figure: Plotly figure.
     """
-    
-    
     if indicators is None:
         indicators = []
-    
-    row_counter = 1 + len(indicators)
-    
 
+    # Determine which RSI/MACD indicators are selected and order them dynamically
+    indicator_order = [i for i in indicators if i in [MACD, RSI_14_LABEL]]
 
-    subplot_titles = get_subplot_titles(indicators)
+    # Set number of rows: row 1 always for price, plus up to 2 for RSI/MACD
+    num_rows = 1 + len(indicator_order)
+    row_heights = [0.6] + [0.2] * (num_rows - 1)
+
+    # Prepare subplot titles
+    subplot_titles = ["Stock Price"] + [i for i in indicator_order]
 
     fig = make_subplots(
-    rows=3, cols=1, shared_xaxes=True,
-    vertical_spacing=0.05,
-    subplot_titles=subplot_titles,
-    row_heights=[0.6, 0.2, 0.2]   # 60%, 20%, 20%
-)
+        rows=num_rows,
+        cols=1,
+        shared_xaxes=True,
+        vertical_spacing=0.05,
+        row_heights=row_heights,
+        subplot_titles=subplot_titles
+    )
 
-    # Ensure first row has dates
-    fig.update_xaxes(showticklabels=True, row=1, col=1)
-    
-    
-
-    
-    print(df.info())
-    
-    
+    # --- Price Chart ---
     if type_of_chart == "LineChart":
-        pass
-        # Linechart Code here
-        #fig = go.Figure([go.Scatter(x=df['Date'], y=df[f'Close'])])
         fig.add_trace(
-            go.Scatter(x=df['Date'], y=df[f'Close'], mode="lines", name="Close"),
+            go.Scatter(x=df['Date'], y=df['Close'], mode="lines", name="Close"),
             row=1, col=1
         )
-    else:
-        # Candlestick Chart here
+    else:  # Candlestick
         fig.add_trace(
-        go.Candlestick(
-            x=df['Date'],
-            open=df[f'Open'],
-            high=df[f'High'],
-            low=df[f'Low'],
-            close=df[f'Close'],
-            increasing_line_color="green",     # outline for bullish candles
-            increasing_fillcolor="green",      # fill bullish candles solid green
-            decreasing_line_color="red",       # outline for bearish candles
-            decreasing_fillcolor="red"         # fill bearish candles solid red
-        ),
-        row=1, col=1
+            go.Candlestick(
+                x=df['Date'],
+                open=df['Open'],
+                high=df['High'],
+                low=df['Low'],
+                close=df['Close'],
+                increasing_line_color="green",     # outline for bullish candles
+                increasing_fillcolor="green",      # fill bullish candles solid green
+                decreasing_line_color="red",       # outline for bearish candles
+                decreasing_fillcolor="red"         # fill bearish candles solid red
+            ),
+            row=1, col=1
         )
         fig.update_xaxes(rangeslider_visible=False)
-        #fig.update_layout(xaxis_rangeslider_visible=False)
-    
-    
-    current_row = 2
-    
+
+    # --- Overlay Indicators on Price Chart (row 1) ---
     for indicator in indicators:
         if indicator == SMA_20_LABEL:
-            fig.add_trace(go.Scatter(x=df['Date'], y=df['SMA_20'], mode='lines', line=dict(color='goldenrod', width=2), name="SMA 20"))
+            fig.add_trace(go.Scatter(x=df['Date'], y=df['SMA_20'], mode='lines',
+                                     line=dict(color='goldenrod', width=2), name="SMA 20"), row=1, col=1)
         if indicator == SMA_50_LABEL:
-            fig.add_trace(go.Scatter(x=df['Date'], y=df['SMA_50'], mode='lines', line=dict(color='teal', width=2), name="SMA 50"))
+            fig.add_trace(go.Scatter(x=df['Date'], y=df['SMA_50'], mode='lines',
+                                     line=dict(color='teal', width=2), name="SMA 50"), row=1, col=1)
         if indicator == SMA_200_LABEL:
-            fig.add_trace(go.Scatter(x=df['Date'], y=df['SMA_200'], mode='lines', line=dict(color='dimgray', width=2), name="SMA 200"))
-
-        if indicator == MACD:
-            fig.add_trace(go.Scatter(x=df['Date'], y=df["MACD"], mode="lines", name="MACD"), row=2, col=1)
-            fig.add_trace(go.Scatter(x=df['Date'], y=df["Signal_Line"], mode="lines", name="Signal"), row=2, col=1)
-            fig.add_trace(go.Bar(
-            x=df['Date'], y=df["MACD_Histogram"], name="Histogram",
-            marker_color=['rgba(0, 128, 0, 1)' if val >= 0 else 'rgba(255, 0, 0, 1)' for val in df["MACD_Histogram"]],
-            opacity=0.5,
-            hovertemplate="Histogram: %{y:.4f}<extra></extra>"
-    ), row=2, col=1)
-
-        if indicator == RSI_14_LABEL:
-            fig.add_trace(go.Scatter(x=df['Date'], y=df["RSI"], mode="lines", name="RSI"), row=3, col=1)
-            fig.add_hline(y=70, line_dash="dash", line_color="red", row=3, col=1)
-            fig.add_hline(y=30, line_dash="dash", line_color="green", row=3, col=1)
-
-           
+            fig.add_trace(go.Scatter(x=df['Date'], y=df['SMA_200'], mode='lines',
+                                     line=dict(color='dimgray', width=2), name="SMA 200"), row=1, col=1)
         if indicator == EMA12:
-            fig.add_trace(
-            go.Scatter(
-            x=df['Date'],
-            y=df['EMA_12'],
-            mode="lines",
-            name="EMA",
-            line=dict(color="darkorange", width=2)
-        ),
-        row=1, col=1 )
-            
+            fig.add_trace(go.Scatter(x=df['Date'], y=df['EMA_12'], mode='lines',
+                                     line=dict(color='darkorange', width=2), name="EMA 12"), row=1, col=1)
         if indicator == EMA26:
-            fig.add_trace(
-            go.Scatter(
-            x=df['Date'],
-            y=df['EMA_26'],
-            mode="lines",
-            name="EMA",
-            line=dict(color="slateblue", width=2)
-        ),
-        row=1, col=1)
-        
+            fig.add_trace(go.Scatter(x=df['Date'], y=df['EMA_26'], mode='lines',
+                                     line=dict(color='slateblue', width=2), name="EMA 26"), row=1, col=1)
         if indicator == VWAP:
-             fig.add_trace(go.Scatter(x=df['Date'],y=df['VWAP'],mode='lines',name = 'VWAP' , line = dict(color = "indigo", width=1.8)),row = 1, col = 1)
-    
+            fig.add_trace(go.Scatter(x=df['Date'], y=df['VWAP'], mode='lines',
+                                     line=dict(color='indigo', width=1.8), name="VWAP"), row=1, col=1)
 
+    # --- RSI/MACD Subplots (rows 2+) ---
+    for idx, indicator in enumerate(indicator_order):
+        row_num = idx + 2  # row 2 for first indicator
+        if indicator == MACD:
+            fig.add_trace(go.Scatter(x=df['Date'], y=df['MACD'], mode='lines', name="MACD",line=dict(color='mediumblue', width=2)), row=row_num, col=1)
+            fig.add_trace(go.Scatter(x=df['Date'], y=df['Signal_Line'], mode='lines', name="Signal",line=dict(color='orangered', width=2)), row=row_num, col=1)
+            fig.add_trace(go.Bar(
+                x=df['Date'], y=df['MACD_Histogram'], name="Histogram",
+                marker_color=['seagreen' if val >= 0 else 'crimson' for val in df["MACD_Histogram"]],
+                opacity=0.5,
+                hovertemplate="Histogram: %{y:.4f}<extra></extra>"
+            ), row=row_num, col=1)
+        elif indicator == RSI_14_LABEL:
+            fig.add_trace(go.Scatter(x=df['Date'], y=df['RSI'], mode='lines', name="RSI",line=dict(color='darkorange', width=2)), row=row_num, col=1)
+            fig.add_hline(y=70, line_dash="dash", line_color="red", row=row_num, col=1)
+            fig.add_hline(y=30, line_dash="dash", line_color="green", row=row_num, col=1)
+
+    # --- Buy/Sell Signals ---
     if show_buy_signals:
-        
-        fig.add_trace(
-            go.Scatter(
-                x=df.loc[df['Buy_Signal'], 'Date'],
-                y=df.loc[df['Buy_Signal'], 'Close'],
-                mode='markers',
-                marker=dict(symbol='triangle-up', color='deepskyblue', size=10),
-                name='Buy Signal'
-            ),
-            row=1, col=1
-        )
-        print("Buy signals plotted")
+        fig.add_trace(go.Scatter(
+            x=df.loc[df['Buy_Signal'], 'Date'],
+            y=df.loc[df['Buy_Signal'], 'Close'],
+            mode='markers',
+            marker=dict(symbol='triangle-up', color='deepskyblue', size=10),
+            name='Buy Signal'
+        ), row=1, col=1)
 
     if show_sell_signals:
-        
-        fig.add_trace(
-            go.Scatter(
-                x=df.loc[df['Sell_Signal'], 'Date'],
-                y=df.loc[df['Sell_Signal'], 'Close'],
-                mode='markers',
-                marker=dict(symbol='triangle-down', color='darkmagenta', size=10),
-                name='Sell Signal'
-            ),
-            row=1, col=1
-        )
-        
-        
-    
-    #for streak_col, color in streak_options:
-    #    in_streak = False
-    #    for i in range(len(df)):
-    #        if df[streak_col].iloc[i] > 0 and not in_streak:
-    #            # Start of a streak
-    #            in_streak = True
-    #            start_date = df.index[i-1] if i > 0 else df.index[i]
-    #        elif (df[streak_col].iloc[i] == 0 or i == len(df)-1) and in_streak:
-    #            end_date = df.index[i] if df[streak_col].iloc[i] > 0 else df.index[i-1]
-    #            fig.add_vrect(
-    #                type='rect',
-    #                xref='x',
-    #                yref='paper',
-    #                x0=start_date,
-    #                x1=end_date,
-    #                y0=0,
-    #                y1=1,
-    #                fillcolor=color,
-    #                line=dict(width=0),
-    #                layer="below"
-    #                
-    #            )
-    #            in_streak = False
-                
-                
+        fig.add_trace(go.Scatter(
+            x=df.loc[df['Sell_Signal'], 'Date'],
+            y=df.loc[df['Sell_Signal'], 'Close'],
+            mode='markers',
+            marker=dict(symbol='triangle-down', color='darkmagenta', size=10),
+            name='Sell Signal'
+        ), row=1, col=1)
+
+    # --- Layout ---
     fig.update_layout(
         title=f"{stock_name} Price with Indicators",
         xaxis_title='',

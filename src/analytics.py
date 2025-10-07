@@ -22,7 +22,7 @@ import timeit
 import os
 import talib
 import yfinance as yf
-from datetime import date
+from datetime import date , timedelta
 
 
 
@@ -161,7 +161,7 @@ def calculate_networth(stock_dataframe: pd.DataFrame):
 
     #Pull latest close for each ticker
     tickers = net_worth["ticker"].tolist()
-    d = date(2025, 9, 22) 
+    d = date.today() - timedelta(days=5)
     api_data = yf.download(tickers, start=d, interval="1d", group_by='ticker', threads=True)
 
     current_prices = {}
@@ -200,9 +200,9 @@ def calculate_daily_returns(stock_dataframe: pd.DataFrame) -> dict:
     if not stock_dataframe.empty:
         tickers = stock_dataframe['ticker'].tolist()
         import yfinance as yf
-        d = date(2025, 9, 22) 
-        #api_data = yf.download(tickers, start = "2025-09-22", end = "2025-09-22" ,interval="1d", group_by='ticker', threads=True)
-        api_data = yf.download(tickers, start=d, interval="1d", group_by='ticker', threads=True)
+        #d = date(2025, 9, 22) 
+        d = date.today() - timedelta(days=5)
+        api_data = yf.download(tickers, start=d,interval="1d", group_by='ticker', threads=True)
         daily_returns = {}
         for ticker in tickers:
             try:

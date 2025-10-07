@@ -68,8 +68,8 @@ def validate_SMA_results(df: pd.DataFrame, window: int) -> pd.DataFrame:
     #Compares each row from both methods for discrepancies
     for i in range(0, len(df[f"SMA_{window}"])):
         #compares the values from both methods
-        if df[f"SMA_{window}"].iloc[i] != df[f"SMA_{window}_talib"].iloc[i]: 
-        #if not np.isclose(df[f"SMA_{window}"].iloc[i],df[f"SMA_{window}_talib"].iloc[i]): #compared to the above, isclose() allows for tolerance (default up to 9dp)
+        #if df[f"SMA_{window}"].iloc[i] != df[f"SMA_{window}_talib"].iloc[i]: 
+        if not np.isclose(df[f"SMA_{window}"].iloc[i],df[f"SMA_{window}_talib"].iloc[i]): #compared to the above, isclose() allows for tolerance (default up to 9dp)
             validation_results.append(["SMA","❌ Failed",f"SMA discrepancy at index {i}: calculated {df[f'SMA_{window}'].iloc[i]}, talib {df[f'SMA_{window}_talib'].iloc[i]}"])
             return None
         else:

@@ -1,1 +1,1 @@
-[{"ticker": "AAPL", "price_per_share": 200.0, "quantity": 1.0}, {"ticker": "VOO", "price_per_share": 600.0, "quantity": 1.0}]
+[{"ticker": "AAPL", "price_per_share": 180.0, "quantity": 2.0}, {"ticker": "VOO", "price_per_share": 500.0, "quantity": 1.0}, {"ticker": "1155.KL", "price_per_share": 5.0, "quantity": 100.0}, {"ticker": "WBC.AX", "price_per_share": 30.0, "quantity": 10.0}]

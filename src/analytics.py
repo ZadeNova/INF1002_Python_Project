@@ -23,7 +23,8 @@ import os
 import talib
 import yfinance as yf
 from datetime import date , timedelta
-
+from src.config import *
+from src.ticker_utils import *
 
 
 
@@ -127,9 +128,6 @@ def max_profit_calculation(df: pd.DataFrame) -> tuple[pd.DataFrame, float, int]:
             df.iloc[i, df.columns.get_loc("Sell_Signal")] = True
             profit += df["Close"].iloc[i] - df["Close"].iloc[i-1]
     
-    # Buy and sell signals will amount to the same due to the greedy algorithm ( logic used above )
-    # For every buy there is a corresponding sell
-    # So we can just return the sum of buy signals
     
     return df, profit , df["Buy_Signal"].sum()
 
@@ -160,69 +158,85 @@ def calculate_networth(stock_dataframe: pd.DataFrame):
     total_invested = float(net_worth["invested_value"].sum())
 
     #Pull latest close for each ticker
-    tickers = net_worth["ticker"].tolist()
+    ticker_list = net_worth["ticker"].tolist()
     d = date.today() - timedelta(days=5)
-    api_data = yf.download(tickers, start=d, interval="1d", group_by='ticker', threads=True)
+    
 
-    current_prices = {}
-    #Handle single ticker vs multi ticker
-    if isinstance(api_data.columns, pd.MultiIndex):
-        for t in tickers:
-            try:
-                current_prices[t] = float(api_data[t]["Close"].iloc[-1])
-            except Exception:
-                current_prices[t] = None
-    else:
-        #Single ticker
-        try:
-            current_price = float(api_data["Close"].iloc[-1])
-        except Exception:
-            current_price = None
-        for t in tickers:
-            current_prices[t] = current_price
 
-    net_worth["current_price"] = net_worth["ticker"].map(current_prices)
-    net_worth["current_value"] = net_worth["current_price"] * net_worth["quantity"]
+    # TEST THE UNKNOWN TICKERS . If user puts in unknown ticker
+    ticker_currency , unknown_tickers = categorize_tickers(tickers_list=ticker_list, exchange_map=EXCHANGE_MAP)
+    
+    prices_data = get_prices(tickers_list=ticker_list)
 
-    total_current_value = float(net_worth["current_value"].sum(skipna=True))
-    profit_loss_total = total_current_value - total_invested
-    profit_loss_pct_total = (profit_loss_total / total_invested * 100.0) if total_invested else 0.0
+    ticker_currency = resolve_unknown_currency(ticker_list, ticker_currency=ticker_currency)
+
+    current_prices = get_prices_and_currency(tickers_list=ticker_list, ticker_prices=prices_data, ticker_currency=ticker_currency)
+ 
+    
+    
+    
+    current_prices = convert_current_prices_to_sgd(current_prices)
+
+    net_worth["ticker"].map(lambda x: print(current_prices[x]['price_sgd']))
+    net_worth["current_price_in_sgd"] = net_worth["ticker"].map(lambda x: current_prices[x]['price_sgd'])
+    net_worth["current_invested_value_sgd"] = net_worth["current_price_in_sgd"] * net_worth["quantity"]
+    
+    
+    
+    net_worth["currency"] = net_worth["ticker"].map(lambda x: current_prices[x]["currency"])
+    unique_currencies = net_worth["currency"].unique().tolist()
+    
+    fx_rates = get_fx_rates(unique_currencies, target_currency="SGD")
+    
+    net_worth = convert_invested_values(net_worth, fx_rates)
+    
+
+    total_current_value_in_SGD = float(net_worth["current_invested_value_sgd"].sum(skipna=True))
+    total_invested_value_in_SGD = float(net_worth["invested_value_sgd"].sum(skipna=True))
+    profit_loss_total_in_SGD = total_current_value_in_SGD - total_invested_value_in_SGD
+    profit_loss_percentage = (profit_loss_total_in_SGD / total_invested_value_in_SGD) * 100.0
+
+    
 
     return {
         "table": net_worth,
-        "total_invested": total_invested,
-        "total_current_value": total_current_value,
-        "profit_loss": profit_loss_total,
-        "profit_loss_pct": profit_loss_pct_total,
+        "total_invested_value_in_sgd": total_invested_value_in_SGD,  # This is total invested has not been converted to currency sgd yet
+        "total_current_value_in_sgd": total_current_value_in_SGD,
+        "profit_loss": profit_loss_total_in_SGD,
+        "profit_loss_percentage": profit_loss_percentage,
     }
 
 def calculate_daily_returns(stock_dataframe: pd.DataFrame) -> dict:
-    if not stock_dataframe.empty:
-        tickers = stock_dataframe['ticker'].tolist()
-        import yfinance as yf
-        #d = date(2025, 9, 22) 
-        d = date.today() - timedelta(days=5)
-        api_data = yf.download(tickers, start=d,interval="1d", group_by='ticker', threads=True)
-        daily_returns = {}
-        for ticker in tickers:
-            try:
-                #Handle single vs multi-ticker frame
-                if isinstance(api_data.columns, pd.MultiIndex):
-                    close = api_data[ticker]["Close"]
-                else:
-                    close = api_data["Close"]
+    try:
+        if not stock_dataframe.empty:
+            tickers = stock_dataframe['ticker'].tolist()
+            import yfinance as yf
+            #d = date(2025, 9, 22) 
+            d = date.today() - timedelta(days=5)
+            api_data = yf.download(tickers, start=d,interval="1d", group_by='ticker', threads=True)
+            daily_returns = {}
+            for ticker in tickers:
+                try:
+                    #Handle single vs multi-ticker frame
+                    if isinstance(api_data.columns, pd.MultiIndex):
+                        close = api_data[ticker]["Close"]
+                    else:
+                        close = api_data["Close"]
 
-                close = close.dropna()
-                if len(close) < 2:
+                    close = close.dropna()
+                    if len(close) < 2:
+                        daily_returns[ticker] = {"daily_return": None, "value": None}
+                        continue
+
+                    latest_close   = close.iloc[-1]
+                    previous_close = close.iloc[-2]
+
+                    daily_return = (latest_close - previous_close) / previous_close * 100
+                    daily_returns[ticker] = {"daily_return": float(daily_return), "value": float(latest_close)}
+                except Exception as e:
+                    print(f"[calculate_daily_returns] {ticker}: {e!r}")
                     daily_returns[ticker] = {"daily_return": None, "value": None}
-                    continue
-
-                latest_close   = close.iloc[-1]
-                previous_close = close.iloc[-2]
-
-                daily_return = (latest_close - previous_close) / previous_close * 100
-                daily_returns[ticker] = {"daily_return": float(daily_return), "value": float(latest_close)}
-            except Exception as e:
-                print(f"[calculate_daily_returns] {ticker}: {e!r}")
-                daily_returns[ticker] = {"daily_return": None, "value": None}
+    except Exception as e:
+        print(f"Error occured at calculate daily returns: {e}")
+    
     return daily_returns

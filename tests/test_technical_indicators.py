@@ -1,4 +1,20 @@
+"""
+tests/test_technical_indicators.py
 
+Purpose:
+    This module contains unit tests for the technical indicator functions in src/technical_indicators.py.
+
+Functions:
+    - TestRSI
+    - TestSMA
+    - TestVWAP
+    - TestEMA
+    - TestMACD
+
+Notes:
+    Each test class contains multiple test cases to validate the correctness of the corresponding technical indicator functions.
+    The tests cover various scenarios, including edge cases, to ensure robust functionality.
+"""
 
 
 import pytest

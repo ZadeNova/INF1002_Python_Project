@@ -158,9 +158,10 @@ if portfolio_name:
                 #Rerun to update this page
                 st.rerun()
     
-    # Add the table to display Portfolio
+    # This is the dataframe table that displays the table contents.
     stock_dataframe = pd.DataFrame(user_portfolio)
     #print(stock_dataframe)
+    # This is the dataframe table that displays the table contents.
     edited_stock_dataframe = st.data_editor(
         stock_dataframe,
         num_rows='dynamic',
@@ -173,6 +174,7 @@ if portfolio_name:
         st.session_state[f'portfolio_{portfolio_name}'] = updated_stock_portfolio  # Update session state
         with open(USER_DATA_DIR / f"portfolio_{portfolio_name}.json", 'w', encoding='utf-8') as file:
             json.dump(updated_stock_portfolio, file)
+
         st.rerun()
 
 
@@ -182,18 +184,20 @@ if portfolio_name:
         net_worth_data = calculate_networth(stock_dataframe)
         if net_worth_data:
             net_worth_table = net_worth_data.get("table")
-            total_invested = float(net_worth_data.get("total_invested", 0.0))
-            total_current_value = float(net_worth_data.get("total_current_value", 0.0))
+            total_invested = float(net_worth_data.get("total_invested_value_in_sgd", 0.0))
+            total_current_value = float(net_worth_data.get("total_current_value_in_sgd", 0.0))
             profit_loss = float(net_worth_data.get("profit_loss", 0.0))
-            profit_loss_pct = float(net_worth_data.get("profit_loss_pct", 0.0))
+            profit_loss_pct = float(net_worth_data.get("profit_loss_percentage", 0.0))
 
             if net_worth_table is not None and not net_worth_table.empty:
 
                 df = net_worth_table.copy()
                 if "profit_loss" not in df.columns:
-                    df["profit_loss"] = df["current_value"] - df["invested_value"]
-                if "profit_loss_pct" not in df.columns:
-                    df["profit_loss_pct"] = np.where(df["invested_value"] > 0, df["profit_loss"] / df["invested_value"] * 100.0,np.nan)
+                    print(df)
+                    print('fal')
+                    df["profit_loss"] = df["current_invested_value_sgd"] - df["invested_value_sgd"]
+                if "profit_loss_percentage" not in df.columns:
+                    df["profit_loss_percentage"] = np.where(df["invested_value_sgd"] > 0, df["profit_loss"] / df["invested_value_sgd"] * 100.0,np.nan)
 
             # Display summary metrics
             st.sidebar.metric("Total Invested", format_currency(total_invested))

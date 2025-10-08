@@ -34,6 +34,11 @@ EMA26 = "EMA26"
 RSI_14_LABEL = "RSI"
 MACD = "MACD"
 
+
+
+"""
+TECHNICAL_INDICATOR_OPTIONS is a list of all the technical indicators available for selection in the application.
+"""
 TECHNICAL_INDICATOR_OPTIONS = [
     SMA_20_LABEL,
     SMA_50_LABEL,
@@ -76,7 +81,11 @@ TICKERS = [
 START_DATE = "2024-01-01"
 END_DATE = "2026-01-01"
 
+
 # Choosing which indicators go on separate subplots vs overlayed
+"""
+These indicators are plotted on separate subplots below the main price chart.
+"""
 SEPARATE_SUBPLOT_INDICATORS = [
     MACD,
     RSI_14_LABEL
@@ -90,3 +99,16 @@ OVERLAY_INDICATORS = [
     EMA26,
     VWAP
 ]
+
+
+"""
+# Exchange Mapping for determining currency based on ticker suffix
+# Source: https://help.yahoo.com/kb/SLN2310.html
+"""
+EXCHANGE_MAP = {
+    ".T":  {"exchange": "Tokyo Stock Exchange", "country": "Japan", "currency": "JPY"},
+    ".DE": {"exchange": "XETRA", "country": "Germany", "currency": "EUR"},
+    ".L":  {"exchange": "London Stock Exchange", "country": "UK", "currency": "GBP"},
+    ".HK": {"exchange": "Hong Kong Exchange", "country": "Hong Kong", "currency": "HKD"},
+    ".SI": {"exchange": "Singapore Exchange", "country": "Singapore", "currency": "SGD"}
+}

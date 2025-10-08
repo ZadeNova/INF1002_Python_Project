@@ -24,31 +24,120 @@ Files that the variables exist in:
 - src/visualization.py 
 - app.py
 """
-# TA Select FIELDS
-SMA_20_LABEL = "SMA 20 (Short Term)"
-SMA_50_LABEL = "SMA 50 (Medium Term)"
-SMA_200_LABEL = "SMA 200 (Long Term)"
+# =============================================================================
+# TECHNICAL INDICATOR CONFIGURATION
+# =============================================================================
+
+# Technical Indicator Names
+SMA_20 = "SMA 20"
+SMA_50 = "SMA 50"
+SMA_200 = "SMA 200"
 VWAP = "VWAP"
 EMA12 = "EMA12"
 EMA26 = "EMA26"
-RSI_14_LABEL = "RSI"
+RSI_14 = "RSI"
 MACD = "MACD"
 
-
-
-"""
-TECHNICAL_INDICATOR_OPTIONS is a list of all the technical indicators available for selection in the application.
-"""
+# Available Technical Indicators for Selection
 TECHNICAL_INDICATOR_OPTIONS = [
-    SMA_20_LABEL,
-    SMA_50_LABEL,
-    SMA_200_LABEL,
+    SMA_20,
+    SMA_50,
+    SMA_200,
     VWAP,
     EMA12,
     EMA26,
-    RSI_14_LABEL,
+    RSI_14,
     MACD
 ]
+
+# =============================================================================
+# VISUALIZATION CONFIGURATION
+# =============================================================================
+
+# Subplot Configuration
+SEPARATE_SUBPLOT_INDICATORS = [MACD, RSI_14]
+OVERLAY_INDICATORS = [SMA_20, SMA_50, SMA_200, EMA12, EMA26, VWAP]
+
+# Technical Indicator Visualization Configuration
+INDICATOR_VISUAL_CONFIG = {
+    SMA_20: {
+        'indicator': 'SMA_20',
+        'color': 'sma_20',
+        'label': SMA_20
+    },
+    SMA_50: {
+        'indicator': 'SMA_50',
+        'color': 'sma_50',
+        'label': SMA_50
+    },
+    SMA_200: {
+        'indicator': 'SMA_200',
+        'color': 'sma_200',
+        'label': SMA_200
+    },
+    EMA12: {
+        'indicator': 'EMA_12',
+        'color': 'ema_12',
+        'label': EMA12
+    },
+    EMA26: {
+        'indicator': 'EMA_26',
+        'color': 'ema_26',
+        'label': EMA26
+    },
+    VWAP: {
+        'indicator': 'VWAP',
+        'color': 'vwap',
+        'label': VWAP
+    },
+    RSI_14: {
+        'label': RSI_14
+    },
+    MACD: {
+        'label': MACD
+    }
+}
+
+# Color Scheme for Charts
+COLORS = {
+    # Price Action
+    'bullish': '#0FB36D',
+    'bearish': '#E64C3D', 
+    'price_line': '#00FF00',
+    
+    # Moving Averages
+    'sma_20': '#FF6B6B',
+    'sma_50': '#4ECDC4',
+    'sma_200': '#45B7D1',
+    'ema_12': '#FFA500',
+    'ema_26': '#9370DB',
+    'vwap': '#FFD700',
+    
+    # MACD
+    'macd': '#FFA500',
+    'signal': '#00BFFF',
+    'macd_histogram_positive': '#00FF00',
+    'macd_histogram_negative': '#FF0000',
+    
+    # RSI
+    'rsi': '#FFA500',
+    'rsi_overbought': '#FF4444',
+    'rsi_oversold': '#44FF44',
+    'rsi_center': '#888888',
+    
+    # Trading Signals
+    'buy_signal': '#00FF00',
+    'sell_signal': '#FF0000',
+    
+    # Chart Layout
+    'background': '#1E1E1E',
+    'grid': '#2D2D2D',
+    'text': '#FFFFFF'
+}
+
+# =============================================================================
+# DATA FETCHING CONFIGURATION
+# =============================================================================
 
 # Period Select Fields
 PERIOD_SELECT_OPTIONS = [
@@ -80,26 +169,6 @@ TICKERS = [
 # Default start date for historical data
 START_DATE = "2024-01-01"
 END_DATE = "2026-01-01"
-
-
-# Choosing which indicators go on separate subplots vs overlayed
-"""
-These indicators are plotted on separate subplots below the main price chart.
-"""
-SEPARATE_SUBPLOT_INDICATORS = [
-    MACD,
-    RSI_14_LABEL
-]
-
-OVERLAY_INDICATORS = [
-    SMA_20_LABEL,
-    SMA_50_LABEL,
-    SMA_200_LABEL,
-    EMA12,
-    EMA26,
-    VWAP
-]
-
 
 """
 # Exchange Mapping for determining currency based on ticker suffix

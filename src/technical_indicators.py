@@ -57,6 +57,8 @@ def apply_selected_technical_indicators(df: pd.DataFrame, selected_indicators: l
         
         df_with_indicators = indicator_function(df_with_indicators)
     
+    # Format dates to clean strings for display (after all calculations)
+    df_with_indicators['Date'] = df_with_indicators['Date'].dt.strftime('%Y-%m-%d')
 
     return df_with_indicators
 
@@ -323,10 +325,10 @@ def calculate_MACD(df: pd.DataFrame, short_period: int=12, long_period: int=26, 
 """
 
 TECHNICAL_INDICATORS = {
-    SMA_20_LABEL: partial(calculate_SMA, window=20),
-    SMA_50_LABEL: partial(calculate_SMA, window=50),
-    SMA_200_LABEL: partial(calculate_SMA, window=200),
-    RSI_14_LABEL: partial(calculate_RSI, window=14),
+    SMA_20: partial(calculate_SMA, window=20),
+    SMA_50: partial(calculate_SMA, window=50),
+    SMA_200: partial(calculate_SMA, window=200),
+    RSI_14: partial(calculate_RSI, window=14),
     MACD: partial(calculate_MACD, short_period=12, long_period=26, signal_period=9, column="Close"),
     VWAP: partial(calculate_VWAP),
     EMA12: partial(calculate_EMA, window = 12),

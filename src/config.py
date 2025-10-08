@@ -28,7 +28,7 @@ Files that the variables exist in:
 # TECHNICAL INDICATOR CONFIGURATION
 # =============================================================================
 
-# Technical Indicator Names
+# Technical Indicator Namess
 SMA_20 = "SMA 20"
 SMA_50 = "SMA 50"
 SMA_200 = "SMA 200"

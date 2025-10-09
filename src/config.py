@@ -179,5 +179,6 @@ EXCHANGE_MAP = {
     ".DE": {"exchange": "XETRA", "country": "Germany", "currency": "EUR"},
     ".L":  {"exchange": "London Stock Exchange", "country": "UK", "currency": "GBP"},
     ".HK": {"exchange": "Hong Kong Exchange", "country": "Hong Kong", "currency": "HKD"},
-    ".SI": {"exchange": "Singapore Exchange", "country": "Singapore", "currency": "SGD"}
+    ".SI": {"exchange": "Singapore Exchange", "country": "Singapore", "currency": "SGD"},
+    ".AX": {"exchange": "Australian Stock Exchange (ASX)", "country": "Australia", "currency":"AUD"}
 }

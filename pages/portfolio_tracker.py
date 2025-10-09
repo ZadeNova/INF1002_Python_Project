@@ -222,13 +222,13 @@ if portfolio_name:
             for ticker, values in daily_returns.items():
                 daily_return = values['daily_return']
                 value = values['value']
-                if daily_return is not None:
-                    if daily_return <= 0:
-                        st.sidebar.metric(label=f"{ticker}", value=f"${value:.2f}", delta=f"{daily_return:.2f}%")
-                    else:
-                        st.sidebar.metric(label=f"{ticker}", value=f"${value:.2f}", delta=f"{daily_return:.2f}%")
+                sgd_value=values.get('value_sgd')
+                if sgd_value is not None:
+                    st.sidebar.metric(label=f"{ticker}", value=f"${sgd_value:.2f}", delta=f"{daily_return:.2f}%")
                 else:
-                    st.sidebar.write(f"{ticker}: Data not available")
+                    st.sidebar.metric(label=f"{ticker}", value=f"${value:.2f}", delta=f"{daily_return:.2f}%")
+            #else:
+                    #st.sidebar.write(f"{ticker}: Data not available")
         else:
             st.sidebar.write("No tickers found in portfolio.")
     else:

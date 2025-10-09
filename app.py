@@ -81,10 +81,11 @@ elif api:
         pass
         
  # Display select field for type of chart       
-type_of_chart_selected = st.sidebar.selectbox(
-        "Select Chart Type",
-        ("LineChart","CandleStick"),
-                                         )
+type_of_chart_selected = st.sidebar.radio(
+    "Select Chart Type",
+    options=["LineChart", "CandleStick"]
+)
+
 
 
 

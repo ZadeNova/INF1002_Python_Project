@@ -208,10 +208,12 @@ def calculate_networth(stock_dataframe: pd.DataFrame):
     }
 
 def calculate_daily_returns(stock_dataframe: pd.DataFrame) -> dict:
+    from src.ticker_utils import categorize_tickers, get_prices, resolve_unknown_currency, get_prices_and_currency, convert_current_prices_to_sgd
+    import yfinance as yf
+    from src.config import EXCHANGE_MAP
     try:
         if not stock_dataframe.empty:
             tickers = stock_dataframe['ticker'].tolist()
-            import yfinance as yf
             #d = date(2025, 9, 22) 
             d = date.today() - timedelta(days=5)
             api_data = yf.download(tickers, start=d,interval="1d", group_by='ticker', threads=True)
@@ -231,13 +233,27 @@ def calculate_daily_returns(stock_dataframe: pd.DataFrame) -> dict:
 
                     latest_close   = close.iloc[-1]
                     previous_close = close.iloc[-2]
-
                     daily_return = (latest_close - previous_close) / previous_close * 100
                     daily_returns[ticker] = {"daily_return": float(daily_return), "value": float(latest_close)}
                 except Exception as e:
                     print(f"[calculate_daily_returns] {ticker}: {e!r}")
                     daily_returns[ticker] = {"daily_return": None, "value": None}
+            # Step 2: Attach currency and convert to SGD
+            ticker_currency = categorize_tickers(tickers_list=tickers, exchange_map=EXCHANGE_MAP)
+            ticker_currency = resolve_unknown_currency(tickers_list=tickers, ticker_currency=ticker_currency)
+            
+            # Build price+currency dict to convert
+            combined_data = {t: {"price": daily_returns[t]["value"], "currency": ticker_currency.get(t)} for t in tickers if t in daily_returns}
+            sgd_converted = convert_current_prices_to_sgd(combined_data)
+
+            # Step 3: Update with SGD values
+            for ticker in tickers:
+                if ticker in daily_returns and ticker in sgd_converted:
+                    sgd_value = sgd_converted[ticker]["price_sgd"]
+                    daily_returns[ticker]["value_sgd"] = sgd_value
+                    daily_returns[ticker]["currency"] = "SGD"
+
     except Exception as e:
-        print(f"Error occured at calculate daily returns: {e}")
-    
+        print(f"Error occurred at calculate_daily_returns: {e}")
+
     return daily_returns

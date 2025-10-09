@@ -164,11 +164,12 @@ def calculate_networth(stock_dataframe: pd.DataFrame):
 
 
     # TEST THE UNKNOWN TICKERS . If user puts in unknown ticker
-    ticker_currency , unknown_tickers = categorize_tickers(tickers_list=ticker_list, exchange_map=EXCHANGE_MAP)
+    ticker_currency  = categorize_tickers(tickers_list=ticker_list, exchange_map=EXCHANGE_MAP)
     
     prices_data = get_prices(tickers_list=ticker_list)
-
-    ticker_currency = resolve_unknown_currency(ticker_list, ticker_currency=ticker_currency)
+    print(ticker_currency)
+    print('analytics.py')
+    ticker_currency = resolve_unknown_currency(tickers_list=ticker_list, ticker_currency=ticker_currency)
 
     current_prices = get_prices_and_currency(tickers_list=ticker_list, ticker_prices=prices_data, ticker_currency=ticker_currency)
  

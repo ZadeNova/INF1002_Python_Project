@@ -90,33 +90,63 @@ def get_prices(tickers_list: list, period="5d", interval="1d") -> dict:
         - Errors during data fetching or processing are caught and logged, with NaN assigned to problematic tickers.
     """
     prices_data = {}
+
+    if not tickers_list:
+        return {}
+
     try:
-        data = yf.download(tickers_list, period=period, interval=interval, group_by="ticker")
+        data = yf.download(tickers_list, period=period, interval=interval, group_by="ticker", progress=False)
     except Exception as e:
         print(f"Error fetching prices: {e}")
         return {ticker: float("nan") for ticker in tickers_list}
-    
+
+    # --- Single ticker path ---
+    if len(tickers_list) == 1:
+        ticker = tickers_list[0]
+        try:
+            # Try bulk-download data first
+            if "Close" in data.columns:
+                price_series = data["Close"].dropna()
+                if not price_series.empty and price_series.iloc[-1] != 0:
+                    prices_data[ticker] = float(price_series.iloc[-1])
+                    return prices_data
+
+            # If bulk failed or 0, fallback to ticker.history()
+            print(f"Retrying {ticker} with direct fetch...")
+            t = yf.Ticker(ticker)
+            hist = t.history(period=period, interval=interval)
+            if not hist.empty and "Close" in hist.columns:
+                last_close = hist["Close"].dropna().iloc[-1]
+                prices_data[ticker] = float(last_close)
+            else:
+                prices_data[ticker] = float("nan")
+
+        except Exception as e:
+            print(f"Error processing single ticker {ticker}: {e}")
+            prices_data[ticker] = float("nan")
+
+        return prices_data
+
+    # --- Multi-ticker path ---
     for ticker in tickers_list:
         try:
-            if len(tickers_list) == 1:
-                price_series = data["Close"].dropna()
+            if ticker not in data.columns.levels[0]:
+                print(f"Ticker {ticker} not found in fetched data")
+                prices_data[ticker] = float("nan")
+                continue
+
+            price_series = data[ticker]["Close"].dropna()
+            if price_series.empty or price_series.iloc[-1] == 0:
+                print(f"Empty/zero data for {ticker}, setting NaN")
+                prices_data[ticker] = float("nan")
             else:
-                price_series = data[ticker]["Close"].dropna()
-            
-            if price_series.empty:
-                price = float("nan")
-            else:
-                price = price_series.iloc[-1]
-            prices_data[ticker] = price
-        except KeyError as e:
-            print(f"Error processing ticker {ticker}: {e}")
-            prices_data[ticker] = float("nan")
+                prices_data[ticker] = float(price_series.iloc[-1])
+
         except Exception as e:
             print(f"Unexpected error for ticker {ticker}: {e}")
             prices_data[ticker] = float("nan")
-        
-    return prices_data
 
+    return prices_data
 
 
 def resolve_unknown_currency(tickers_list: list, ticker_currency: dict):

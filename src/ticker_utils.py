@@ -108,12 +108,12 @@ def get_prices(tickers_list: list, period="5d", interval="1d") -> dict:
             else:
                 price = price_series.iloc[-1]
             prices_data[ticker] = price
-        except KeyError:
+        except KeyError as e:
             print(f"Error processing ticker {ticker}: {e}")
-            prices_data[ticker] = np.float("nan")
+            prices_data[ticker] = float("nan")
         except Exception as e:
             print(f"Unexpected error for ticker {ticker}: {e}")
-            prices_data[ticker] = np.float("nan")
+            prices_data[ticker] = float("nan")
         
     return prices_data
 

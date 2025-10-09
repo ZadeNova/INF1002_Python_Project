@@ -165,8 +165,13 @@ if portfolio_name:
     edited_stock_dataframe = st.data_editor(
         stock_dataframe,
         num_rows='dynamic',
-        use_container_width=True
-    )
+        column_config={
+        "ticker": "Ticker Name",
+        "price_per_share": "Price per Share (SGD)",
+        "quantity": "Quantity",
+    },
+    width='stretch'  # replaces use_container_width=True
+)
     if st.button("Save Changes"):
         # Convert back to list of dicts
         updated_stock_portfolio = edited_stock_dataframe.to_dict('records')

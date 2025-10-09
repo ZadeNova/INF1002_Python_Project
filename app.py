@@ -66,10 +66,12 @@ if uploaded_file is not None:
 elif api:
     # Fetch stock data using yfinance API if api is provided
     #data = yf.download(api, period="1y", interval="1d")
+    print(api)
     data = yf.Ticker(api).history(period=period_option_for_data)
     # Clear session state date_range
     st.session_state["date_range"] = ""
-
+    print(data)
+    print('TESTING TESTING')
     st.session_state["date_range"] = (data.index.min().date(), data.index.max().date())
     print('wait is this getting activated?')
     print(data)

@@ -193,7 +193,12 @@ def validate_rsi_against_library(historical_stock_data: pd.DataFrame, window: in
     for i in range(0, len(df[f"SMA_{window}"])):
         #compares the values from both methods
         if not np.isclose(df[f"RSI"].iloc[i],df[f"RSI_talib"].iloc[i]): 
-            validation_results.append(["RSI","❌ Failed",f"SMA discrepancy at index {i}: calculated {df[f"RSI"].iloc[i]}, talib {df[f"RSI_talib"].iloc[i]}"])
+            #validation_results.append(["RSI","❌ Failed",f"SMA discrepancy at index {i}: calculated {df[f"RSI"].iloc[i]}, #talib {df[f"RSI_talib"].iloc[i]}"])
+            validation_results.append([
+                "RSI",
+                "❌ Failed",
+                f"SMA discrepancy at index {i}: calculated {df['RSI'].iloc[i]}, talib {df['RSI_talib'].iloc[i]}"
+            ])
             return None
         else:
             pass

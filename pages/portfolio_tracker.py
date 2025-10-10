@@ -167,7 +167,7 @@ if portfolio_name:
         num_rows='dynamic',
         column_config={
         "ticker": "Ticker Name",
-        "price_per_share": "Price per Share (SGD)",
+        "price_per_share": "Price per Share (In Native Currency)",
         "quantity": "Quantity",
     },
     width='stretch'  # replaces use_container_width=True

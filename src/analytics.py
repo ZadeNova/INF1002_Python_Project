@@ -48,16 +48,20 @@ def calculate_upward_and_Downward_runs(df: pd.DataFrame) -> tuple[pd.DataFrame,d
           which indicate the length of the current upward or downward trend at each row.
         
     """
-
     
     df["Up_Trend"] = 0
     df["Down_Trend"] = 0
+
     up_streak = 0
     up_start_date = None
+
     down_streak = 0
     down_start_date = None
+
     longest_up = {"length": 0, "start": None, "end": None}
     longest_down = {"length": 0, "start": None, "end": None}
+
+
     for i in range(1, len(df)):
         if df["Close"].iloc[i] > df["Close"].iloc[i-1]:
             if up_streak == 0:
@@ -162,20 +166,16 @@ def calculate_networth(stock_dataframe: pd.DataFrame):
     d = date.today() - timedelta(days=5)
     
 
-
-    # TEST THE UNKNOWN TICKERS . If user puts in unknown ticker
     ticker_currency  = categorize_tickers(tickers_list=ticker_list, exchange_map=EXCHANGE_MAP)
     
     prices_data = get_prices(tickers_list=ticker_list)
-    print(ticker_currency)
-    print('analytics.py')
+
     ticker_currency = resolve_unknown_currency(tickers_list=ticker_list, ticker_currency=ticker_currency)
 
     current_prices = get_prices_and_currency(tickers_list=ticker_list, ticker_prices=prices_data, ticker_currency=ticker_currency)
  
     
-    
-    
+
     current_prices = convert_current_prices_to_sgd(current_prices)
 
     net_worth["ticker"].map(lambda x: print(current_prices[x]['price_sgd']))
@@ -236,7 +236,6 @@ def calculate_daily_returns(stock_dataframe: pd.DataFrame) -> dict:
                     daily_return = (latest_close - previous_close) / previous_close * 100
                     daily_returns[ticker] = {"daily_return": float(daily_return), "value": float(latest_close)}
                 except Exception as e:
-                    print(f"[calculate_daily_returns] {ticker}: {e!r}")
                     daily_returns[ticker] = {"daily_return": None, "value": None}
             # Step 2: Attach currency and convert to SGD
             ticker_currency = categorize_tickers(tickers_list=tickers, exchange_map=EXCHANGE_MAP)

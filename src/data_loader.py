@@ -31,7 +31,7 @@ try:
     project_root = current_file.parent.parent
     DATA_DIR = project_root / "data" / "CSV"
     os.makedirs(DATA_DIR, exist_ok=True)
-    print("Its running!")
+    
     
 except Exception as e:
     print(f"Error setting up data directory: {e}")

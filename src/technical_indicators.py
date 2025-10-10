@@ -49,10 +49,10 @@ def apply_selected_technical_indicators(df: pd.DataFrame, selected_indicators: l
     """
     df_with_indicators = df
     # Loop through the user's selection and apply the corresponding function
-    print(selected_indicators)
+
     
     for indicator_func in selected_indicators:
-        print(indicator_func)
+
         indicator_function = TECHNICAL_INDICATORS[indicator_func]
         
         df_with_indicators = indicator_function(df_with_indicators)
@@ -229,13 +229,12 @@ def calculate_SMA(df: pd.DataFrame, window: int) -> pd.DataFrame:
             avg_prices.append(None)
         else:
             window_average = (df['Close'].iloc[i+1-window: i+1]).sum() / window
-            #print(window_average,'testing22334')
+
             avg_prices.append(window_average)
     
     column_name = f"SMA_{window}"
     df[column_name] = avg_prices
-    print(df)
-    print('testing123')
+
     return df
 
 

@@ -67,37 +67,44 @@ def load_portfolio(portfolio_name: str):
     return []
     
 #save portfolio data to json file, translate python dictionary into json format and write to file
-def save_portfolio(username: str, new_stock_holding: StockHoldings) -> None:
+def save_portfolio(portfolio_name, new_stock_holding):
+    portfolio_path = USER_DATA_DIR / f"portfolio_{portfolio_name}.json"
 
-    filename = USER_DATA_DIR / f"portfolio_{username}.json"
+    try:
+        with open(portfolio_path, "r") as f:
+            portfolio = json.load(f)
+            if not isinstance(portfolio, list):
+                portfolio = portfolio.get("holdings", [])
+    except (FileNotFoundError, json.JSONDecodeError):
+        portfolio = []
 
-    # Check if file exists
-    if os.path.exists(filename):
-        with open(filename, 'r') as file:
-            try:
-                
-                existing_data = json.load(file)
-            except json.JSONDecodeError:
-                # File exists but is empty or invalid JSON
-                print(f"Error with JSON file")
-                existing_data = []
-    else:
-        # File does not exist, intialize a empty list
-        existing_data = []
+    ticker_exists = False
+    for holding in portfolio:
+        if holding["ticker"].upper() == new_stock_holding.ticker.upper():
+            # Calculate new weighted average price and quantity
+            old_qty = holding["quantity"]
+            new_qty = new_stock_holding.quantity
+            total_qty = old_qty + new_qty
 
-    # Append new data to existing data
-    if isinstance(existing_data, list):
-        
-        # Create new entry in JSON format
-        existing_data.append(asdict(new_stock_holding))
-    
-    # Write back to file with added data
-    # OR create a file if it has not been created before
-    with open(filename, 'w',encoding='utf-8') as file:
-        json.dump(existing_data,file)
-    
-    st.session_state[f'portfolio_{username}'] = existing_data
-    
+            old_price = holding["price_per_share"]
+            new_price = new_stock_holding.price_per_share
+            avg_price = ((old_price * old_qty) + (new_price * new_qty)) / total_qty
+
+            holding["price_per_share"] = round(avg_price, 2)
+            holding["quantity"] = total_qty
+            ticker_exists = True
+            break
+
+    if not ticker_exists:
+        portfolio.append({
+            "ticker": new_stock_holding.ticker.upper(),
+            "price_per_share": new_stock_holding.price_per_share,
+            "quantity": new_stock_holding.quantity
+        })
+
+    with open(portfolio_path, "w") as f:
+        json.dump(portfolio, f, indent=4)
+
 
 
 

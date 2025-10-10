@@ -147,7 +147,7 @@ if portfolio_name:
         with col1:
             ticker = st.text_input("Stock ticker", placeholder="e.g., AAPL").strip().upper()
         with col2:
-            buy_price = st.number_input("Buy price ($)", min_value=0.0, value=0.0, step=0.01, format="%.2f")
+            buy_price = st.number_input("Buy price (In Native Currency)", min_value=0.0, value=0.0, step=0.01, format="%.2f")
         with col3:
             amount = st.number_input("Quantity (shares)", min_value=0.0, value=0.0, step=0.01)
         submitted = st.form_submit_button("Add Holding to Portfolio")
@@ -191,7 +191,7 @@ if portfolio_name:
 
 
 #Calculate and display net worth for every stock holding with def calculate_networth
-    st.sidebar.header("Net Worth Summary")
+    st.sidebar.header("Net Worth Summary (SGD)")
     if not stock_dataframe.empty:
         net_worth_data = calculate_networth(stock_dataframe)
         if net_worth_data:

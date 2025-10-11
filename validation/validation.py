@@ -226,7 +226,7 @@ Make sure to adjust the stock symbol , date range, and window size as needed.
 Additional Notes for next change:
 - Give professor the command to run this validation file
 - Display the data in a nicer way to the professor  ( might consider log file )
-- Command is python -m validation.validation.py
+- Command is python -m validation.validation.py ( please use this )
 
 """
 user_window = 14

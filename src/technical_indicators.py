@@ -79,23 +79,26 @@ def calculate_RSI(df: pd.DataFrame, window: int) -> pd.DataFrame:
         - The first (time_period) rows will have NaN values for the RSI since there is insufficient data to calculate the average gains and losses.
         - The function uses a sliding window approach to efficiently compute the RSI for each row.
         - This is O(n) implementation of RSI calculation cause it uses the sliding window approach.
-        - The RSI values range from 0 to 100, with values above 70 indicating overbought conditions and values below 30 indicating oversold conditions.
+        - RSI > 70 -> Overbought condition.
+        - RSI < 30 -> Oversold condition.
         - The function uses the wilders smoothing method for calculating average gains and losses.
         
     """
-
+    # Ensure dataframe has enough rows for RSI calculation
     if len(df) < window + 1:
         raise ValueError(f"DataFrame must have at least {window + 1} rows to calculate RSI")
     
+    # Extract closing prices as a list for easier access
     closes = list(df["Close"])
     
+    # Compute price changes between consecutive days
     price_change = []
     for i in range(1, len(closes)):
         price_change.append(closes[i] - closes[i-1])
     
+    # Positive changes -> gains, Negative changes -> losses
     gains = []
     losses = []
-    
     for change in price_change:
         if change > 0:
             gains.append(change)
@@ -104,22 +107,24 @@ def calculate_RSI(df: pd.DataFrame, window: int) -> pd.DataFrame:
             gains.append(0)
             losses.append(-change)
             
+    # Intialize average gains and losses lists to store smoothed averages using Wilder's formula
     avg_gains = [None] * len(gains)
     avg_losses = [None] * len(losses)
     
+    # Compute the first average gain and loss
     first_avg_gain = sum(gains[:window]) / window
     first_avg_loss = sum(losses[:window]) / window
     avg_gains[window-1] = first_avg_gain
     avg_losses[window-1] = first_avg_loss  
     
-    
+    # Apply wilder's smoothing formula
     for i in range(window, len(gains)):
         avg_gains[i] = ((avg_gains[i-1] * (window - 1)) + gains[i]) / window
         avg_losses[i] = ((avg_losses[i-1] * (window - 1)) + losses[i]) / window
     
     
+    # Compute RSI for each period
     rsi_values = [None] * (len(closes))
-    
     for i in range(len(avg_gains)):
         if avg_gains[i] is None or avg_losses[i] is None:
             continue
@@ -129,6 +134,7 @@ def calculate_RSI(df: pd.DataFrame, window: int) -> pd.DataFrame:
             rs = avg_gains[i] / avg_losses[i]
         rsi_values[i+1] = 100 - (100 / (1 + rs))
     
+    # Added RSI column to the dataframe
     df['RSI'] = rsi_values
 
     
@@ -216,13 +222,8 @@ def calculate_SMA(df: pd.DataFrame, window: int) -> pd.DataFrame:
 
     avg_prices = []
 
-    #starts from the last date
     slider = len(df)
-    #while slider-user_window >= 0:
-    #    window_average = df["Close"].iloc[slider-user_window:slider].sum() / user_window
-    #    avg_prices.insert(0, window_average)
-    #    slider -= 1
-    #    
+
     
     for i in range(len(df)):
         if i + 1 < window:

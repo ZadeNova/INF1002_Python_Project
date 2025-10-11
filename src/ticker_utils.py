@@ -65,8 +65,7 @@ def categorize_tickers(tickers_list: list, exchange_map: dict) -> dict:
         except Exception as e:
             print(f"Error categorizing ticker: {e}")
             continue
-    print(ticker_currency)
-    print('bola caregorize ticker')
+
     return ticker_currency
 
 
@@ -166,9 +165,7 @@ def resolve_unknown_currency(tickers_list: list, ticker_currency: dict):
         - This function modifies the input dictionary in place and also returns it for convenience.
         - Errors during data fetching or processing are caught and logged, with "UNKNOWN" assigned to problematic tickers.
     """
-    print('hgi')
-    print(ticker_currency)
-    print(tickers_list)
+
     try:
         for ticker in tickers_list:
             if ticker not in ticker_currency:

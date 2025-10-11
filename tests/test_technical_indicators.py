@@ -4,7 +4,7 @@ tests/test_technical_indicators.py
 Purpose:
     This module contains unit tests for the technical indicator functions in src/technical_indicators.py.
 
-Functions:
+Functions (classes):
     - TestRSI
     - TestSMA
     - TestVWAP

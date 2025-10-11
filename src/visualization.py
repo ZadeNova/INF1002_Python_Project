@@ -140,8 +140,8 @@ def create_price_chart(df: pd.DataFrame, type_of_chart: str) -> go.Figure:
             line=dict(color=COLORS['price_line'], width=1.5), connectgaps=True, **common_params)
     elif type_of_chart == "CandleStick":
         return go.Candlestick(open=df['Open'], high=df['High'], low=df['Low'], close=df['Close'],
-            increasing_line_color=COLORS['bearish'], increasing_fillcolor=COLORS['bearish'],
-            decreasing_line_color=COLORS['bullish'], decreasing_fillcolor=COLORS['bullish'], **common_params)
+            increasing_line_color=COLORS['bullish'], increasing_fillcolor=COLORS['bullish'],
+            decreasing_line_color=COLORS['bearish'], decreasing_fillcolor=COLORS['bearish'], **common_params)
     else:
         raise ValueError(f"Unsupported chart type: {type_of_chart}")
 

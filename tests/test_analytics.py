@@ -4,9 +4,10 @@ tests/test_analytics.py
 Purpose:
     This module contains unit tests for the analytics functions in src/analytics.py.
 
-Functions:
+Functions (classes):
     - Test_upward_downward_runs
     - Test_max_profit_calculation
+    - Test_calculate_daily_returns
 
 Notes:
     Each test class contains multiple test cases to validate the correctness of the corresponding analytics functions.
@@ -119,5 +120,50 @@ class Test_max_profit_calculation:
         assert result_df["Buy_Signal"].iloc[0] == True
         assert result_df["Buy_Signal"].iloc[2] == True
 
+class Test_calculate_daily_returns:
+    
+    @patch("src.ticker_utils.convert_current_prices_to_sgd")
+    @patch("src.ticker_utils.resolve_unknown_currency")
+    @patch("src.ticker_utils.categorize_tickers")
+    @patch("src.analytics.yf.download")
+    def test_successful_returns_calculation(self, mock_download, mock_categorize, mock_resolve, mock_convert):
+        "Test successful daily return calculation for multiple tickers."
+        
+        tickers = ["AAPL","TSLA"]
+        df_input = pd.DataFrame({"ticker": tickers})
+        
+        # Mock yfinance data (multiIndex)
+        mock_data = pd.concat({
+            "AAPL": pd.DataFrame({"Close": [100, 110]}),
+            "TSLA": pd.DataFrame({"Close": [200, 180]})
+        }, axis=1)
+        mock_download.return_value = mock_data
+        
 
+        # Mock currency mapping
+        mock_categorize.return_value = {"AAPL": "USD", "TSLA": "USD"}
+        mock_resolve.return_value = {"AAPL": "USD", "TSLA": "USD"}
+        mock_convert.return_value = {
+            "AAPL": {"price_sgd": 150.0, "currency": "SGD"},
+            "TSLA": {"price_sgd": 250.0, "currency": "SGD"},
+        }
+        
+        result = calculate_daily_returns(df_input)
+        print(result)
+        # --- Assert statements ---
+        assert "AAPL" in result
+        assert "TSLA" in result
+        assert result["AAPL"]["daily_return"] == 10.0
+        assert result["TSLA"]["daily_return"] == -10.0
+
+    @patch("src.analytics.yf.download", side_effect=Exception("API Error"))
+    def test_yfinance_failure(self, mock_download):
+        "Test function gracefully handles API failure."
+        df_input = pd.DataFrame({"ticker": ["AAPL"]})
+        result = calculate_daily_returns(df_input)
+        assert isinstance(result,dict)
+        assert result == {}
+        
+        mock_download.assert_called_once()
+        
     

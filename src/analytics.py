@@ -137,6 +137,45 @@ def max_profit_calculation(df: pd.DataFrame) -> tuple[pd.DataFrame, float, int]:
 
 #Calculate and display net worth for every stock holding and comparing to close stock price
 def calculate_networth(stock_dataframe: pd.DataFrame):
+    """
+    This function calculates the user's total net worth in SGD based on their stock holdings.
+    It computes invested value, current market value, and profit/loss for each stock while 
+    handling multi-currency portfolios through automatic FX conversion. 
+    
+    The function fetches the latest stock prices, resolves missing currency information, 
+    converts all amounts to SGD, and aggregates the results to provide portfolio-level metrics.
+
+    Args:
+        stock_dataframe (pd.DataFrame): 
+            A DataFrame containing stock holdings with the following required columns:
+                - 'ticker': Stock ticker symbol (e.g., 'AAPL', 'TSLA').
+                - 'price_per_share': Purchase price per share in the original currency.
+                - 'quantity': Number of shares owned.
+    
+    Returns:
+        dict: A dictionary containing:
+            - 'table' (pd.DataFrame): DataFrame with additional computed columns such as 
+              invested value, current value, currency, and converted SGD values.
+            - 'total_invested_value_in_sgd' (float): Total invested amount converted to SGD.
+            - 'total_current_value_in_sgd' (float): Current total market value in SGD.
+            - 'profit_loss' (float): Absolute profit or loss in SGD.
+            - 'profit_loss_percentage' (float): Profit or loss expressed as a percentage.
+    
+    Raises:
+        ValueError: If any of the required columns ('ticker', 'price_per_share', 'quantity') 
+                    are missing from the input DataFrame.
+
+    Notes:
+        - All tickers are automatically capitalized for consistency.
+        - The function uses helper utilities such as `categorize_tickers()`, 
+          `get_prices()`, `resolve_unknown_currency()`, and `convert_current_prices_to_sgd()`
+          to retrieve and process pricing and FX data.
+        - Prices are fetched using the latest available close prices (within 5 days of the 
+          current date).
+        - Any missing or non-numeric data in price or quantity fields will be coerced to NaN 
+          and treated as zero during calculations.
+        - The results assume no transaction costs, taxes, or dividends are included.
+    """
     if stock_dataframe.empty:
         return {
             "table": stock_dataframe.copy(),
@@ -178,7 +217,7 @@ def calculate_networth(stock_dataframe: pd.DataFrame):
 
     current_prices = convert_current_prices_to_sgd(current_prices)
 
-    net_worth["ticker"].map(lambda x: print(current_prices[x]['price_sgd']))
+
     net_worth["current_price_in_sgd"] = net_worth["ticker"].map(lambda x: current_prices[x]['price_sgd'])
     net_worth["current_invested_value_sgd"] = net_worth["current_price_in_sgd"] * net_worth["quantity"]
     
@@ -208,16 +247,53 @@ def calculate_networth(stock_dataframe: pd.DataFrame):
     }
 
 def calculate_daily_returns(stock_dataframe: pd.DataFrame) -> dict:
-    from src.ticker_utils import categorize_tickers, get_prices, resolve_unknown_currency, get_prices_and_currency, convert_current_prices_to_sgd
-    import yfinance as yf
-    from src.config import EXCHANGE_MAP
+    """
+    This function calculates the daily percentage returns for each stock in the given DataFrame
+    based on their most recent closing prices. It retrieves recent price data using the Yahoo 
+    Finance API (`yfinance`), computes the change between the latest and previous closing prices, 
+    and converts all stock values into SGD for consistency across multi-currency portfolios.
+
+    Args:
+        stock_dataframe (pd.DataFrame):
+            A DataFrame containing stock holdings with at least the following column:
+                - 'ticker': Stock ticker symbol (e.g., 'AAPL', 'TSLA', 'MSFT').
+
+    Returns:
+        dict: A dictionary where each key is a stock ticker and each value is another dictionary containing:
+            - 'daily_return' (float or None): The daily percentage return of the stock.
+            - 'value' (float or None): The latest closing price in the stock’s original currency.
+            - 'value_sgd' (float or None): The latest closing price converted to SGD.
+            - 'currency' (str): The currency of the returned value (always 'SGD' after conversion).
+        
+        Example structure:
+            {
+                "AAPL": {"daily_return": 0.52, "value": 188.3, "value_sgd": 255.4, "currency": "SGD"},
+                "TSLA": {"daily_return": -1.25, "value": 240.6, "value_sgd": 325.8, "currency": "SGD"}
+            }
+
+    Raises:
+        Exception: If any error occurs during data fetching or computation, 
+                   the function prints an error message and returns the partially computed results.
+
+    Notes:
+        - The function fetches daily price data for the past 5 days to ensure at least two valid 
+          trading days of data (handles weekends/holidays automatically).
+        - Handles both single and multiple tickers gracefully from the `yfinance` response.
+        - Any tickers with insufficient or missing price data will have `daily_return` and `value`
+          set to `None`.
+        - Uses helper functions such as `categorize_tickers()`, `resolve_unknown_currency()`, 
+          and `convert_current_prices_to_sgd()` to handle multi-currency conversions.
+        - The final output expresses all prices in Singapore Dollars (SGD) for uniform comparison.
+        - Assumes no transaction costs, dividends, or fees are included in the calculations.
+    """
+    daily_returns = {}
     try:
         if not stock_dataframe.empty:
             tickers = stock_dataframe['ticker'].tolist()
             #d = date(2025, 9, 22) 
             d = date.today() - timedelta(days=5)
             api_data = yf.download(tickers, start=d,interval="1d", group_by='ticker', threads=True)
-            daily_returns = {}
+            
             for ticker in tickers:
                 try:
                     #Handle single vs multi-ticker frame
@@ -254,5 +330,6 @@ def calculate_daily_returns(stock_dataframe: pd.DataFrame) -> dict:
 
     except Exception as e:
         print(f"Error occurred at calculate_daily_returns: {e}")
+        return daily_returns
 
     return daily_returns

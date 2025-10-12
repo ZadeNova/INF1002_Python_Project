@@ -17,7 +17,7 @@ This system performs sophisticated technical analysis on historical stock data, 
 * 💹 Display buy/sell signals on the chart
 * ⚡ Powered by Streamlit for an interactive dashboard to display visualization
 * 💾 Data sourced from Yahoo Finance (Yfinance)
-
+* 💰 Calculate Portfolio networth from user's stock transactions
 ---
 
 ## 🏗️ Tech Stack
@@ -97,16 +97,22 @@ streamlit run app.py
 
 ## 🧪 Validation & Testing
 
-🛠 WIP ( Work in Progress )
 
 To validate the results:
 
-* The program outputs streak detection results directly in the console.
-* Professors can re-run the analysis with sample data provided in `/data`.
-* Unit tests (if included) can be run with:
+* Professors can re-run the analysis with sample data provided in `/data/CSV`.
+* Validation file is under `validation/validation.py`
+* Validation file can be run with:
+```bash
+python -m validation.validation    # recommended
+python -m validation.validation.py
+python3 -m validation.validation
+```
+* Unit tests for test_analytics.py and test_technical_indicators.py can be run with:
 
 ```bash
-pytest
+pytest tests/test_analytics.py
+pytest tests/test_technical_indicators.py
 ```
 
 ---

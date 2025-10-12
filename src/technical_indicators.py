@@ -29,7 +29,7 @@ import os
 import talib
 from functools import partial
 from src.config import *
-
+import streamlit as st
 def apply_selected_technical_indicators(df: pd.DataFrame, selected_indicators: list) -> pd.DataFrame:
     """
     This function applies the selected technical indicators to the given DataFrame. The Dataframe is modified in-place to include new columns for each selected indicator.
@@ -86,57 +86,63 @@ def calculate_RSI(df: pd.DataFrame, window: int) -> pd.DataFrame:
     """
     # Ensure dataframe has enough rows for RSI calculation
     if len(df) < window + 1:
-        raise ValueError(f"DataFrame must have at least {window + 1} rows to calculate RSI")
+        st.error(f"Not enough data to calculate RSI. Please provide at least 15 rows(days) of historical stock data to view RSI.")
+        df["RSI"] = [None] * len(df)
+        return df
     
-    # Extract closing prices as a list for easier access
-    closes = list(df["Close"])
+        
+    try:
     
-    # Compute price changes between consecutive days
-    price_change = []
-    for i in range(1, len(closes)):
-        price_change.append(closes[i] - closes[i-1])
-    
-    # Positive changes -> gains, Negative changes -> losses
-    gains = []
-    losses = []
-    for change in price_change:
-        if change > 0:
-            gains.append(change)
-            losses.append(0)
-        else:
-            gains.append(0)
-            losses.append(-change)
-            
-    # Intialize average gains and losses lists to store smoothed averages using Wilder's formula
-    avg_gains = [None] * len(gains)
-    avg_losses = [None] * len(losses)
-    
-    # Compute the first average gain and loss
-    first_avg_gain = sum(gains[:window]) / window
-    first_avg_loss = sum(losses[:window]) / window
-    avg_gains[window-1] = first_avg_gain
-    avg_losses[window-1] = first_avg_loss  
-    
-    # Apply wilder's smoothing formula
-    for i in range(window, len(gains)):
-        avg_gains[i] = ((avg_gains[i-1] * (window - 1)) + gains[i]) / window
-        avg_losses[i] = ((avg_losses[i-1] * (window - 1)) + losses[i]) / window
-    
-    
-    # Compute RSI for each period
-    rsi_values = [None] * (len(closes))
-    for i in range(len(avg_gains)):
-        if avg_gains[i] is None or avg_losses[i] is None:
-            continue
-        if avg_losses[i] == 0:
-            rs = float('inf')
-        else:
-            rs = avg_gains[i] / avg_losses[i]
-        rsi_values[i+1] = 100 - (100 / (1 + rs))
-    
-    # Added RSI column to the dataframe
-    df['RSI'] = rsi_values
-
+        # Extract closing prices as a list for easier access
+        closes = list(df["Close"])
+        
+        # Compute price changes between consecutive days
+        price_change = []
+        for i in range(1, len(closes)):
+            price_change.append(closes[i] - closes[i-1])
+        
+        # Positive changes -> gains, Negative changes -> losses
+        gains = []
+        losses = []
+        for change in price_change:
+            if change > 0:
+                gains.append(change)
+                losses.append(0)
+            else:
+                gains.append(0)
+                losses.append(-change)
+                
+        # Intialize average gains and losses lists to store smoothed averages using Wilder's formula
+        avg_gains = [None] * len(gains)
+        avg_losses = [None] * len(losses)
+        
+        # Compute the first average gain and loss
+        first_avg_gain = sum(gains[:window]) / window
+        first_avg_loss = sum(losses[:window]) / window
+        avg_gains[window-1] = first_avg_gain
+        avg_losses[window-1] = first_avg_loss  
+        
+        # Apply wilder's smoothing formula
+        for i in range(window, len(gains)):
+            avg_gains[i] = ((avg_gains[i-1] * (window - 1)) + gains[i]) / window
+            avg_losses[i] = ((avg_losses[i-1] * (window - 1)) + losses[i]) / window
+        
+        
+        # Compute RSI for each period
+        rsi_values = [None] * (len(closes))
+        for i in range(len(avg_gains)):
+            if avg_gains[i] is None or avg_losses[i] is None:
+                continue
+            if avg_losses[i] == 0:
+                rs = float('inf')
+            else:
+                rs = avg_gains[i] / avg_losses[i]
+            rsi_values[i+1] = 100 - (100 / (1 + rs))
+        
+        # Added RSI column to the dataframe
+        df['RSI'] = rsi_values
+    except Exception as e:
+        raise Exception(f"Error Occured while calculating RSI: {e}")
     
     return df
         
@@ -160,12 +166,16 @@ def calculate_EMA(df: pd.DataFrame, window, column: str="Close", ema_col: str=No
         - The function assumes that the input DataFrame has the specified column.
         
     """
-
-    if len(df) < window:
-        raise ValueError(f"DataFrame must have at least {window} rows to calculate EMA")
-    
     if ema_col is None:
         ema_col = f"EMA_{window}"
+
+    if len(df) < window:
+        st.error(f"Not enough data to calculate EMA. Please provide at least {window} rows(days) of historical stock data to view EMA.")
+        df[ema_col] = [None] * len(df)
+        return df
+        
+    
+    
     
     # Ensure numeric values
     df[column] = pd.to_numeric(df[column], errors="coerce")
@@ -217,7 +227,8 @@ def calculate_SMA(df: pd.DataFrame, window: int) -> pd.DataFrame:
         raise ValueError("DataFrame must contain 'Close' column")
     
     if len(df) < window + 1:
-        raise ValueError(f"DataFrame must have at least {window + 1} rows to calculate SMA")
+        st.error(f"Not enough data to calculate SMA. Please provide at least {window + 1} rows(days) of historical stock data to view SMA.")
+
 
 
     avg_prices = []
